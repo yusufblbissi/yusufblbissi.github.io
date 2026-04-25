@@ -4,6 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Yousef Balbisi — Artist Portfolio</title>
+  <meta name="description" content="Explore the portfolio of Yousef Balbisi, a Palestinian artist based in Lebanon working across ink, portraiture, and acrylic painting." />
+  <meta name="keywords" content="Yousef Balbisi, artist portfolio, Palestinian artist, Lebanon artist, ink drawings, acrylic paintings, portrait art" />
+  <meta name="author" content="Yousef Balbisi" />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://yusufblbissi.github.io/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Yousef Balbisi — Artist Portfolio" />
+  <meta property="og:description" content="Original artworks, portrait studies, and acrylic paintings by Yousef Balbisi." />
+  <meta property="og:url" content="https://yusufblbissi.github.io/" />
+  <meta property="og:image" content="https://yusufblbissi.github.io/assets/portrait.jpeg" />
+  <meta property="og:site_name" content="Yousef Balbisi Portfolio" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Yousef Balbisi — Artist Portfolio" />
+  <meta name="twitter:description" content="Discover the paintings and drawings of Yousef Balbisi, a Palestinian artist based in Lebanon." />
+  <meta name="twitter:image" content="https://yusufblbissi.github.io/assets/portrait.jpeg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
   <style>
@@ -14,7 +29,24 @@
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #C4A88244; border-radius: 3px; }
+    a { color: inherit; text-decoration: none; }
   </style>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Yousef Balbisi",
+      "jobTitle": "Visual Artist",
+      "url": "https://yusufblbissi.github.io/",
+      "image": "https://yusufblbissi.github.io/assets/portrait.jpeg",
+      "sameAs": [
+        "https://www.instagram.com/yousef.balbissi?igsh=MXdhYWpjamFtanRkcw%3D%3D&utm_source=qr",
+        "https://www.facebook.com/share/14iS6kBdkqp/?mibextid=wwXIfr",
+        "https://www.linkedin.com/in/yousef-balbisi?utm_source=share_via&utm_content=profile&utm_medium=member_ios"
+      ],
+      "description": "Palestinian artist based in Lebanon creating portrait studies, ink works, and acrylic paintings."
+    }
+  </script>
 </head>
 <body>
   <div id="root"></div>
@@ -557,6 +589,44 @@ function PageTransition({ children, pageKey }) {
   );
 }
 
+function useViewport() {
+  const getWidth = () => (typeof window === 'undefined' ? 1200 : window.innerWidth);
+  const [width, setWidth] = React.useState(getWidth);
+
+  React.useEffect(() => {
+    const onResize = () => setWidth(getWidth());
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  return {
+    width,
+    isTablet: width <= 960,
+    isMobile: width <= 720,
+  };
+}
+
+const SOCIAL_LINKS = [
+  {
+    label: 'Instagram',
+    href: 'https://www.instagram.com/yousef.balbissi?igsh=MXdhYWpjamFtanRkcw%3D%3D&utm_source=qr',
+    handle: '@yousef.balbissi',
+    blurb: 'Studio updates, recent works, and new releases.',
+  },
+  {
+    label: 'Facebook',
+    href: 'https://www.facebook.com/share/14iS6kBdkqp/?mibextid=wwXIfr',
+    handle: 'Yousef Balbisi on Facebook',
+    blurb: 'Announcements, community posts, and exhibition updates.',
+  },
+  {
+    label: 'LinkedIn',
+    href: 'https://www.linkedin.com/in/yousef-balbisi?utm_source=share_via&utm_content=profile&utm_medium=member_ios',
+    handle: 'Yousef Balbisi',
+    blurb: 'Professional profile, collaborations, and career updates.',
+  },
+];
+
 /* ── Placeholder Component ── */
 function ArtPlaceholder({ text, theme, style }) {
   const t = THEMES[theme];
@@ -576,29 +646,36 @@ function ArtPlaceholder({ text, theme, style }) {
 }
 
 /* ── Navigation ── */
-function Nav({ theme, currentPage, setPage }) {
+function Nav({ theme, currentPage, setPage, viewport }) {
   const t = THEMES[theme];
   const links = ["home", "gallery", "about", "shop", "contact"];
+  const compact = viewport?.isMobile;
   return (
     <nav style={{
       position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
       background: t.navBg, backdropFilter: "blur(12px)",
       borderBottom: `1px solid ${t.cardBorder}`,
-      padding: "0 40px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between",
+      padding: compact ? "10px 18px" : "0 40px",
+      minHeight: compact ? 96 : 64,
+      display: "flex",
+      alignItems: compact ? "flex-start" : "center",
+      justifyContent: "space-between",
+      flexDirection: compact ? "column" : "row",
+      gap: compact ? 10 : 0,
     }}>
       <div
         onClick={() => setPage("home")}
-        style={{ cursor: "pointer", fontFamily: t.font, fontSize: 22, fontWeight: 600, color: t.text, letterSpacing: 1 }}
+        style={{ cursor: "pointer", fontFamily: t.font, fontSize: compact ? 20 : 22, fontWeight: 600, color: t.text, letterSpacing: 1 }}
       >
         Yousef Balbisi
       </div>
-      <div style={{ display: "flex", gap: 32 }}>
+      <div style={{ display: "flex", gap: compact ? 18 : 32, flexWrap: "wrap", width: compact ? "100%" : "auto" }}>
         {links.map(l => (
           <div
             key={l}
             onClick={() => setPage(l)}
             style={{
-              cursor: "pointer", fontFamily: t.fontBody, fontSize: 14,
+              cursor: "pointer", fontFamily: t.fontBody, fontSize: compact ? 12 : 14,
               textTransform: "uppercase", letterSpacing: 2,
               color: currentPage === l ? t.accent : t.textMuted,
               borderBottom: currentPage === l ? `2px solid ${t.accent}` : "2px solid transparent",
@@ -617,11 +694,14 @@ function Nav({ theme, currentPage, setPage }) {
 }
 
 /* ── Hero Section ── */
-function Hero({ theme, setPage, onToggleTheme }) {
+function Hero({ theme, setPage, onToggleTheme, viewport }) {
   const t = THEMES[theme];
+  const compact = viewport?.isMobile;
   return (
     <section style={{
-      marginTop: 64, height: "calc(100vh - 64px)", display: "flex", alignItems: "center", justifyContent: "center",
+      marginTop: compact ? 96 : 64,
+      minHeight: compact ? "calc(100vh - 96px)" : "calc(100vh - 64px)",
+      display: "flex", alignItems: "center", justifyContent: "center",
       background: t.bg, position: "relative", overflow: "hidden",
     }}>
       <div style={{
@@ -631,10 +711,10 @@ function Hero({ theme, setPage, onToggleTheme }) {
         opacity: theme === "dark" ? 0.15 : 0.1,
         filter: theme === "dark" ? "none" : "grayscale(100%)",
       }}></div>
-      <div style={{ position: "relative", textAlign: "center", maxWidth: 700, padding: 40 }}>
+      <div style={{ position: "relative", textAlign: "center", maxWidth: 700, padding: compact ? 22 : 40 }}>
         <FadeIn delay={0.1} direction="up">
         <h1 style={{
-          fontFamily: t.font, fontSize: 64, fontWeight: 400,
+          fontFamily: t.font, fontSize: compact ? 42 : 64, fontWeight: 400,
           color: t.text, lineHeight: 1.15, margin: 0,
           letterSpacing: -1,
         }}>
@@ -643,7 +723,7 @@ function Hero({ theme, setPage, onToggleTheme }) {
         </FadeIn>
         <FadeIn delay={0.35} direction="up">
         <p style={{
-          fontFamily: t.fontBody, fontSize: 18, color: t.textMuted,
+          fontFamily: t.fontBody, fontSize: compact ? 16 : 18, color: t.textMuted,
           marginTop: 24, lineHeight: 1.7, maxWidth: 500, marginLeft: "auto", marginRight: "auto",
         }}>
           Palestinian roots, Syrian memories, Lebanese light — each piece carries a world between its lines.
@@ -654,7 +734,7 @@ function Hero({ theme, setPage, onToggleTheme }) {
           onClick={() => setPage("gallery")}
           style={{
             display: "inline-block", marginTop: 40, cursor: "pointer",
-            fontFamily: t.fontBody, fontSize: 14, textTransform: "uppercase", letterSpacing: 3,
+            fontFamily: t.fontBody, fontSize: compact ? 12 : 14, textTransform: "uppercase", letterSpacing: compact ? 2 : 3,
             color: t.accent, borderBottom: `1px solid ${t.accent}`, paddingBottom: 6,
           }}
         >
@@ -665,7 +745,7 @@ function Hero({ theme, setPage, onToggleTheme }) {
         <button onClick={onToggleTheme} style={{
           marginTop: 32, padding: "12px 28px", cursor: "pointer",
           background: "none", border: `1px solid ${t.textMuted}44`,
-          borderRadius: 24, fontFamily: t.fontBody, fontSize: 13,
+          borderRadius: 24, fontFamily: t.fontBody, fontSize: compact ? 12 : 13,
           color: t.textMuted, letterSpacing: 1, transition: "all 0.4s",
           display: "inline-flex", alignItems: "center", gap: 8,
         }}
@@ -680,8 +760,101 @@ function Hero({ theme, setPage, onToggleTheme }) {
   );
 }
 
-function HomePage({ theme, setPage, onToggleTheme }) {
+function SocialSection({ theme, viewport }) {
   const t = THEMES[theme];
+  const compact = viewport?.isMobile;
+
+  return (
+    <section style={{
+      background: t.bg,
+      padding: compact ? "72px 18px" : "88px 40px",
+    }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+        <FadeIn direction="up">
+          <div style={{ textAlign: compact ? "left" : "center", maxWidth: 760, margin: compact ? "0" : "0 auto" }}>
+            <div style={{
+              fontFamily: t.fontBody,
+              fontSize: 12,
+              color: t.accent,
+              textTransform: "uppercase",
+              letterSpacing: 3,
+              marginBottom: 14,
+            }}>
+              Social media
+            </div>
+            <h2 style={{ fontFamily: t.font, fontSize: compact ? 36 : 44, fontWeight: 400, color: t.text, margin: 0, lineHeight: 1.1 }}>
+              Follow the work beyond the website.
+            </h2>
+            <p style={{
+              fontFamily: t.fontBody,
+              fontSize: compact ? 15 : 16,
+              color: t.textMuted,
+              lineHeight: 1.8,
+              margin: "18px 0 0",
+            }}>
+              Connect for new artwork drops, studio progress, exhibitions, and collaboration updates across the platforms where the work keeps moving.
+            </p>
+          </div>
+        </FadeIn>
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: compact ? "1fr" : "repeat(3, minmax(0, 1fr))",
+          gap: 20,
+          marginTop: 32,
+        }}>
+          {SOCIAL_LINKS.map((link, index) => (
+            <FadeIn key={link.label} delay={index * 0.12} direction="up">
+              <a href={link.href} target="_blank" rel="noreferrer" aria-label={link.label} style={{ display: "block" }}>
+                <div style={{
+                  background: t.cardBg,
+                  border: `1px solid ${t.cardBorder}`,
+                  borderRadius: 18,
+                  padding: compact ? 20 : 24,
+                  minHeight: 190,
+                  boxShadow: `0 18px 40px ${t.text}10`,
+                }}>
+                  <div style={{
+                    fontFamily: t.fontBody,
+                    fontSize: 12,
+                    color: t.accent,
+                    textTransform: "uppercase",
+                    letterSpacing: 2.5,
+                    marginBottom: 12,
+                  }}>{link.label}</div>
+                  <div style={{ fontFamily: t.font, fontSize: compact ? 28 : 32, color: t.text, lineHeight: 1.1 }}>
+                    {link.handle}
+                  </div>
+                  <p style={{
+                    fontFamily: t.fontBody,
+                    fontSize: 14,
+                    color: t.textMuted,
+                    lineHeight: 1.75,
+                    margin: "14px 0 0",
+                  }}>{link.blurb}</p>
+                  <div style={{
+                    fontFamily: t.fontBody,
+                    fontSize: 12,
+                    color: t.accent,
+                    textTransform: "uppercase",
+                    letterSpacing: 2,
+                    marginTop: 18,
+                  }}>
+                    Open profile
+                  </div>
+                </div>
+              </a>
+            </FadeIn>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function HomePage({ theme, setPage, onToggleTheme, viewport }) {
+  const t = THEMES[theme];
+  const compact = viewport?.isMobile;
+  const stacked = viewport?.isTablet;
   const featuredWorks = ARTWORKS.slice(0, 3);
   const highlights = [
     {
@@ -720,17 +893,17 @@ function HomePage({ theme, setPage, onToggleTheme }) {
 
   return (
     <>
-      <Hero theme={theme} setPage={setPage} onToggleTheme={onToggleTheme} />
+      <Hero theme={theme} setPage={setPage} onToggleTheme={onToggleTheme} viewport={viewport} />
 
       <section style={{
         background: `linear-gradient(180deg, ${t.bg} 0%, ${t.bgAlt} 100%)`,
-        padding: "88px 40px",
+        padding: compact ? "72px 18px" : "88px 40px",
       }}>
         <div style={{
           maxWidth: 1200,
           margin: "0 auto",
           display: "grid",
-          gridTemplateColumns: "minmax(0, 1.1fr) minmax(0, 1fr)",
+          gridTemplateColumns: stacked ? "1fr" : "minmax(0, 1.1fr) minmax(0, 1fr)",
           gap: 40,
           alignItems: "start",
         }}>
@@ -748,7 +921,7 @@ function HomePage({ theme, setPage, onToggleTheme }) {
               </div>
               <h2 style={{
                 fontFamily: t.font,
-                fontSize: 46,
+                fontSize: compact ? 36 : 46,
                 fontWeight: 400,
                 color: t.text,
                 lineHeight: 1.1,
@@ -759,7 +932,7 @@ function HomePage({ theme, setPage, onToggleTheme }) {
               </h2>
               <p style={{
                 fontFamily: t.fontBody,
-                fontSize: 17,
+                fontSize: compact ? 15 : 17,
                 color: t.textMuted,
                 lineHeight: 1.8,
                 margin: "22px 0 0",
@@ -815,7 +988,7 @@ function HomePage({ theme, setPage, onToggleTheme }) {
 
       <section style={{
         background: t.bg,
-        padding: "88px 40px",
+        padding: compact ? "72px 18px" : "88px 40px",
       }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <FadeIn direction="up">
@@ -831,7 +1004,7 @@ function HomePage({ theme, setPage, onToggleTheme }) {
                 }}>
                   Featured works
                 </div>
-                <h2 style={{ fontFamily: t.font, fontSize: 44, fontWeight: 400, color: t.text, margin: 0 }}>
+                <h2 style={{ fontFamily: t.font, fontSize: compact ? 34 : 44, fontWeight: 400, color: t.text, margin: 0, lineHeight: 1.1 }}>
                   A quick way into the collection.
                 </h2>
               </div>
@@ -876,6 +1049,7 @@ function HomePage({ theme, setPage, onToggleTheme }) {
                   </div>
                   <div style={{ padding: 22 }}>
                     <div style={{ fontFamily: t.font, fontSize: 28, color: t.text, lineHeight: 1.1 }}>{art.title}</div>
+                    
                     <div style={{ fontFamily: t.fontBody, fontSize: 13, color: t.textMuted, marginTop: 8 }}>
                       {art.medium} · {art.year}
                     </div>
@@ -898,18 +1072,18 @@ function HomePage({ theme, setPage, onToggleTheme }) {
 
       <section style={{
         background: `linear-gradient(180deg, ${t.bgAlt} 0%, ${t.bg} 100%)`,
-        padding: "88px 40px 112px",
+        padding: compact ? "72px 18px 88px" : "88px 40px 112px",
       }}>
         <div style={{
           maxWidth: 1200,
           margin: "0 auto",
           display: "grid",
-          gridTemplateColumns: "minmax(0, 0.9fr) minmax(0, 1.1fr)",
+          gridTemplateColumns: stacked ? "1fr" : "minmax(0, 0.9fr) minmax(0, 1.1fr)",
           gap: 36,
           alignItems: "start",
         }}>
           <FadeIn direction="left">
-            <div style={{ position: "sticky", top: 96 }}>
+            <div style={{ position: stacked ? "static" : "sticky", top: 96 }}>
               <div style={{
                 fontFamily: t.fontBody,
                 fontSize: 12,
@@ -920,7 +1094,7 @@ function HomePage({ theme, setPage, onToggleTheme }) {
               }}>
                 Process
               </div>
-              <h2 style={{ fontFamily: t.font, fontSize: 44, fontWeight: 400, color: t.text, margin: 0, lineHeight: 1.1 }}>
+              <h2 style={{ fontFamily: t.font, fontSize: compact ? 34 : 44, fontWeight: 400, color: t.text, margin: 0, lineHeight: 1.1 }}>
                 How each piece reaches the wall.
               </h2>
               <p style={{
@@ -940,7 +1114,7 @@ function HomePage({ theme, setPage, onToggleTheme }) {
               <FadeIn key={step.number} delay={0.12 * index} direction="right">
                 <div style={{
                   display: "grid",
-                  gridTemplateColumns: "auto 1fr",
+                  gridTemplateColumns: compact ? "1fr" : "auto 1fr",
                   gap: 18,
                   background: t.cardBg,
                   border: `1px solid ${t.cardBorder}`,
@@ -1025,24 +1199,27 @@ function HomePage({ theme, setPage, onToggleTheme }) {
           </div>
         </div>
       </section>
+
+      <SocialSection theme={theme} viewport={viewport} />
     </>
   );
 }
 
 /* ── Gallery Page ── */
-function GalleryPage({ theme, setSelectedArt }) {
+function GalleryPage({ theme, setSelectedArt, viewport }) {
   const t = THEMES[theme];
+  const compact = viewport?.isMobile;
   const [filter, setFilter] = React.useState("all");
   const cats = ["all", "ink", "acrylic", "portrait"];
   const filtered = filter === "all" ? ARTWORKS : ARTWORKS.filter(a => a.category === filter);
 
   return (
-    <section style={{ marginTop: 64, padding: "60px 40px 80px", background: t.bg, minHeight: "100vh" }}>
+    <section style={{ marginTop: compact ? 96 : 64, padding: compact ? "48px 18px 64px" : "60px 40px 80px", background: t.bg, minHeight: "100vh" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-        <h2 style={{ fontFamily: t.font, fontSize: 42, fontWeight: 400, color: t.text, margin: "0 0 12px" }}>Gallery</h2>
+        <h2 style={{ fontFamily: t.font, fontSize: compact ? 34 : 42, fontWeight: 400, color: t.text, margin: "0 0 12px" }}>Gallery</h2>
         <p style={{ fontFamily: t.fontBody, fontSize: 16, color: t.textMuted, margin: "0 0 40px" }}>Selected works in pen, ink, and acrylic</p>
 
-        <div style={{ display: "flex", gap: 20, marginBottom: 40 }}>
+        <div style={{ display: "flex", gap: compact ? 14 : 20, marginBottom: 40, flexWrap: "wrap" }}>
           {cats.map(c => (
             <button key={c} onClick={() => setFilter(c)} style={{
               background: "none", border: "none", cursor: "pointer",
@@ -1110,27 +1287,29 @@ function ArtCard({ art, theme, onClick }) {
 /* ── Lightbox ── */
 function Lightbox({ art, theme, onClose }) {
   const t = THEMES[theme];
+  const viewport = useViewport();
+  const compact = viewport.isMobile;
   if (!art) return null;
   return (
     <div onClick={onClose} style={{
       position: "fixed", inset: 0, zIndex: 200,
       background: theme === "dark" ? "rgba(0,0,0,0.92)" : "rgba(0,0,0,0.85)",
       display: "flex", alignItems: "center", justifyContent: "center",
-      padding: 40, cursor: "pointer",
+      padding: compact ? 18 : 40, cursor: "pointer",
     }}>
       <div onClick={e => e.stopPropagation()} style={{
-        display: "flex", gap: 40, maxWidth: 1000, width: "100%",
+        display: "flex", flexDirection: compact ? "column" : "row", gap: compact ? 20 : 40, maxWidth: 1000, width: "100%",
         alignItems: "center", cursor: "default",
       }}>
-        <div style={{ flex: "1 1 60%", maxHeight: "80vh", borderRadius: 4, overflow: "hidden" }}>
+        <div style={{ flex: "1 1 60%", maxHeight: compact ? "42vh" : "80vh", width: compact ? "100%" : "auto", borderRadius: 4, overflow: "hidden" }}>
           {art.src ? (
             <img src={art.src} alt={art.title} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
           ) : (
             <ArtPlaceholder text={art.placeholder} theme="dark" style={{ minHeight: 400 }} />
           )}
         </div>
-        <div style={{ flex: "1 1 35%", color: "#F0EDE8", maxHeight: "80vh", overflowY: "auto" }}>
-          <h3 style={{ fontFamily: THEMES.gallery.font, fontSize: 32, fontWeight: 400, margin: 0 }}>{art.title}</h3>
+        <div style={{ flex: "1 1 35%", color: "#F0EDE8", maxHeight: compact ? "38vh" : "80vh", overflowY: "auto" }}>
+          <h3 style={{ fontFamily: THEMES.gallery.font, fontSize: compact ? 26 : 32, fontWeight: 400, margin: 0 }}>{art.title}</h3>
           <p style={{ fontFamily: THEMES.gallery.fontBody, fontSize: 15, color: "#9A958D", marginTop: 8 }}>{art.medium} · {art.year}</p>
           {art.story && <p style={{ fontFamily: THEMES.gallery.fontBody, fontSize: 14, color: "#B8B2A8", marginTop: 20, lineHeight: 1.8, fontStyle: "italic" }}>{art.story}</p>}
           <p style={{ fontFamily: THEMES.gallery.fontBody, fontSize: 24, color: "#D4A96A", marginTop: 24 }}>{art.price}</p>
@@ -1156,11 +1335,13 @@ function Lightbox({ art, theme, onClose }) {
 }
 
 /* ── About Page ── */
-function AboutPage({ theme }) {
+function AboutPage({ theme, viewport }) {
   const t = THEMES[theme];
+  const compact = viewport?.isMobile;
+  const stacked = viewport?.isTablet;
   return (
-    <section style={{ marginTop: 64, padding: "80px 40px", background: t.bg, minHeight: "100vh" }}>
-      <div style={{ maxWidth: 900, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: 60, alignItems: "start" }}>
+    <section style={{ marginTop: compact ? 96 : 64, padding: compact ? "56px 18px" : "80px 40px", background: t.bg, minHeight: "100vh" }}>
+      <div style={{ maxWidth: 900, margin: "0 auto", display: "grid", gridTemplateColumns: stacked ? "1fr" : "1fr 1.2fr", gap: compact ? 28 : 60, alignItems: "start" }}>
         <FadeIn delay={0} direction="left">
         <div>
           <img src="assets/portrait.jpeg" alt="Yousef Balbisi" style={{
@@ -1170,7 +1351,7 @@ function AboutPage({ theme }) {
         </FadeIn>
         <FadeIn delay={0.2} direction="right">
         <div>
-          <h2 style={{ fontFamily: t.font, fontSize: 42, fontWeight: 400, color: t.text, margin: "0 0 8px" }}>About</h2>
+          <h2 style={{ fontFamily: t.font, fontSize: compact ? 34 : 42, fontWeight: 400, color: t.text, margin: "0 0 8px" }}>About</h2>
           <div style={{ width: 40, height: 2, background: t.accent, marginBottom: 32 }}></div>
           <p style={{ fontFamily: t.fontBody, fontSize: 16, color: t.text, lineHeight: 1.8, margin: "0 0 20px" }}>
             I am Yousef Balbisi, a Palestinian artist born in Syria and raised between worlds. With a Lebanese mother and a life shaped by the landscapes of Damascus, Beirut, and the stories carried across borders, my work is a conversation between memory and presence.
@@ -1191,12 +1372,13 @@ function AboutPage({ theme }) {
   );
 }
 
-function ShopPage({ theme, setSelectedArt }) {
+function ShopPage({ theme, setSelectedArt, viewport }) {
   const t = THEMES[theme];
+  const compact = viewport?.isMobile;
   return (
-    <section style={{ marginTop: 64, padding: "60px 40px 80px", background: t.bg, minHeight: "100vh" }}>
+    <section style={{ marginTop: compact ? 96 : 64, padding: compact ? "48px 18px 64px" : "60px 40px 80px", background: t.bg, minHeight: "100vh" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-        <h2 style={{ fontFamily: t.font, fontSize: 42, fontWeight: 400, color: t.text, margin: "0 0 12px" }}>Shop</h2>
+        <h2 style={{ fontFamily: t.font, fontSize: compact ? 34 : 42, fontWeight: 400, color: t.text, margin: "0 0 12px" }}>Shop</h2>
         <p style={{ fontFamily: t.fontBody, fontSize: 16, color: t.textMuted, margin: "0 0 40px" }}>Original works available for purchase. Contact for commissions.</p>
 
         <div style={{
@@ -1233,13 +1415,14 @@ function ShopPage({ theme, setSelectedArt }) {
 }
 
 /* ── Contact Page ── */
-function ContactPage({ theme }) {
+function ContactPage({ theme, viewport }) {
   const t = THEMES[theme];
+  const compact = viewport?.isMobile;
   const [sent, setSent] = React.useState(false);
   return (
-    <section style={{ marginTop: 64, padding: "80px 40px", background: t.bg, minHeight: "100vh" }}>
+    <section style={{ marginTop: compact ? 96 : 64, padding: compact ? "56px 18px" : "80px 40px", background: t.bg, minHeight: "100vh" }}>
       <div style={{ maxWidth: 600, margin: "0 auto" }}>
-        <h2 style={{ fontFamily: t.font, fontSize: 42, fontWeight: 400, color: t.text, margin: "0 0 8px" }}>Get in touch</h2>
+        <h2 style={{ fontFamily: t.font, fontSize: compact ? 34 : 42, fontWeight: 400, color: t.text, margin: "0 0 8px" }}>Get in touch</h2>
         <div style={{ width: 40, height: 2, background: t.accent, marginBottom: 16 }}></div>
         <p style={{ fontFamily: t.fontBody, fontSize: 16, color: t.textMuted, margin: "0 0 40px", lineHeight: 1.7 }}>
           For commissions, purchases, or exhibition inquiries — I'd love to hear from you.
@@ -1286,7 +1469,7 @@ function ContactPage({ theme }) {
               padding: "14px 32px", background: t.accent, border: "none",
               color: "#fff", cursor: "pointer", borderRadius: 2,
               fontFamily: t.fontBody, fontSize: 13, textTransform: "uppercase",
-              letterSpacing: 2, transition: "background 0.3s", alignSelf: "flex-start",
+              letterSpacing: 2, transition: "background 0.3s", alignSelf: compact ? "stretch" : "flex-start",
             }}
             onMouseEnter={e => e.target.style.background = t.accentHover}
             onMouseLeave={e => e.target.style.background = t.accent}
@@ -1301,17 +1484,34 @@ function ContactPage({ theme }) {
 }
 
 /* ── Footer ── */
-function Footer({ theme }) {
+function Footer({ theme, viewport }) {
   const t = THEMES[theme];
+  const compact = viewport?.isMobile;
   return (
     <footer style={{
-      padding: "40px", background: t.bgAlt,
+      padding: compact ? "28px 18px" : "40px", background: t.bgAlt,
       borderTop: `1px solid ${t.cardBorder}`,
       textAlign: "center",
     }}>
       <div style={{ fontFamily: t.font, fontSize: 18, color: t.text }}>Yousef Balbisi</div>
       <div style={{ fontFamily: t.fontBody, fontSize: 13, color: t.textMuted, marginTop: 8 }}>
         Palestinian artist · Beirut, Lebanon
+      </div>
+      <div style={{
+        display: "flex",
+        justifyContent: "center",
+        gap: 18,
+        flexWrap: "wrap",
+        marginTop: 14,
+        fontFamily: t.fontBody,
+        fontSize: 12,
+        color: t.textMuted,
+        textTransform: "uppercase",
+        letterSpacing: 2,
+      }}>
+        {SOCIAL_LINKS.map((link) => (
+          <a key={link.label} href={link.href} target="_blank" rel="noreferrer">{link.label}</a>
+        ))}
       </div>
     </footer>
   );
@@ -1334,6 +1534,7 @@ Object.assign(window, {
       const [page, setPage] = React.useState("home");
       const [selectedArt, setSelectedArt] = React.useState(null);
       const [tweaksOpen, setTweaksOpen] = React.useState(false);
+      const viewport = useViewport();
 
       const theme = tweakValues.theme;
       const t = THEMES[theme];
@@ -1346,22 +1547,22 @@ Object.assign(window, {
 
       const renderPage = () => {
         switch (page) {
-          case "home": return <HomePage theme={theme} setPage={setPage} onToggleTheme={() => setTweak("theme", theme === "dark" ? "gallery" : "dark")} />;
-          case "gallery": return <GalleryPage theme={theme} setSelectedArt={setSelectedArt} />;
-          case "about": return <AboutPage theme={theme} />;
-          case "shop": return <ShopPage theme={theme} setSelectedArt={setSelectedArt} />;
-          case "contact": return <ContactPage theme={theme} />;
-          default: return <HomePage theme={theme} setPage={setPage} onToggleTheme={() => setTweak("theme", theme === "dark" ? "gallery" : "dark")} />;
+          case "home": return <HomePage theme={theme} setPage={setPage} viewport={viewport} onToggleTheme={() => setTweak("theme", theme === "dark" ? "gallery" : "dark")} />;
+          case "gallery": return <GalleryPage theme={theme} viewport={viewport} setSelectedArt={setSelectedArt} />;
+          case "about": return <AboutPage theme={theme} viewport={viewport} />;
+          case "shop": return <ShopPage theme={theme} viewport={viewport} setSelectedArt={setSelectedArt} />;
+          case "contact": return <ContactPage theme={theme} viewport={viewport} />;
+          default: return <HomePage theme={theme} setPage={setPage} viewport={viewport} onToggleTheme={() => setTweak("theme", theme === "dark" ? "gallery" : "dark")} />;
         }
       };
 
       return (
         <div style={{ minHeight: "100vh", background: t.bg, transition: "background 0.5s" }}>
-          <Nav theme={theme} currentPage={page} setPage={setPage} />
+          <Nav theme={theme} currentPage={page} setPage={setPage} viewport={viewport} />
           <PageTransition pageKey={page}>
             {renderPage()}
           </PageTransition>
-          {page !== "home" && <Footer theme={theme} />}
+          {page !== "home" && <Footer theme={theme} viewport={viewport} />}
           <Lightbox art={selectedArt} theme={theme} onClose={() => setSelectedArt(null)} />
 
           <TweaksPanel title="Tweaks">
