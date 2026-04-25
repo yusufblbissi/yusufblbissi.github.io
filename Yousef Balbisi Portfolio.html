@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Yousef Balbisi — Artist Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+    ::selection { background: #D4A96A44; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #C4A88244; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <script type="text/babel">
+
+// tweaks-panel.jsx
+// Reusable Tweaks shell + form-control helpers.
+//
+// Owns the host protocol (listens for __activate_edit_mode / __deactivate_edit_mode,
+// posts __edit_mode_available / __edit_mode_set_keys / __edit_mode_dismissed) so
+// individual prototypes don't re-roll it. Ships a consistent set of controls so you
+// don't hand-draw <input type="range">, segmented radios, steppers, etc.
+//
+// Usage (in an HTML file that loads React + Babel):
+//
+//   const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+//     "primaryColor": "#D97757",
+//     "fontSize": 16,
+//     "density": "regular",
+//     "dark": false
+//   }/*EDITMODE-END*/;
+//
+//   function App() {
+//     const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+//     return (
+//       <div style={{ fontSize: t.fontSize, color: t.primaryColor }}>
+//         Hello
+//         <TweaksPanel>
+//           <TweakSection label="Typography" />
+//           <TweakSlider label="Font size" value={t.fontSize} min={10} max={32} unit="px"
+//                        onChange={(v) => setTweak('fontSize', v)} />
+//           <TweakRadio  label="Density" value={t.density}
+//                        options={['compact', 'regular', 'comfy']}
+//                        onChange={(v) => setTweak('density', v)} />
+//           <TweakSection label="Theme" />
+//           <TweakColor  label="Primary" value={t.primaryColor}
+//                        onChange={(v) => setTweak('primaryColor', v)} />
+//           <TweakToggle label="Dark mode" value={t.dark}
+//                        onChange={(v) => setTweak('dark', v)} />
+//         </TweaksPanel>
+//       </div>
+//     );
+//   }
+//
+// ─────────────────────────────────────────────────────────────────────────────
+
+const __TWEAKS_STYLE = `
+  .twk-panel{position:fixed;right:16px;bottom:16px;z-index:2147483646;width:280px;
+    max-height:calc(100vh - 32px);display:flex;flex-direction:column;
+    background:rgba(250,249,247,.78);color:#29261b;
+    -webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);
+    border:.5px solid rgba(255,255,255,.6);border-radius:14px;
+    box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 12px 40px rgba(0,0,0,.18);
+    font:11.5px/1.4 ui-sans-serif,system-ui,-apple-system,sans-serif;overflow:hidden}
+  .twk-hd{display:flex;align-items:center;justify-content:space-between;
+    padding:10px 8px 10px 14px;cursor:move;user-select:none}
+  .twk-hd b{font-size:12px;font-weight:600;letter-spacing:.01em}
+  .twk-x{appearance:none;border:0;background:transparent;color:rgba(41,38,27,.55);
+    width:22px;height:22px;border-radius:6px;cursor:default;font-size:13px;line-height:1}
+  .twk-x:hover{background:rgba(0,0,0,.06);color:#29261b}
+  .twk-body{padding:2px 14px 14px;display:flex;flex-direction:column;gap:10px;
+    overflow-y:auto;overflow-x:hidden;min-height:0;
+    scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.15) transparent}
+  .twk-body::-webkit-scrollbar{width:8px}
+  .twk-body::-webkit-scrollbar-track{background:transparent;margin:2px}
+  .twk-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:4px;
+    border:2px solid transparent;background-clip:content-box}
+  .twk-body::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.25);
+    border:2px solid transparent;background-clip:content-box}
+  .twk-row{display:flex;flex-direction:column;gap:5px}
+  .twk-row-h{flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+  .twk-lbl{display:flex;justify-content:space-between;align-items:baseline;
+    color:rgba(41,38,27,.72)}
+  .twk-lbl>span:first-child{font-weight:500}
+  .twk-val{color:rgba(41,38,27,.5);font-variant-numeric:tabular-nums}
+
+  .twk-sect{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    color:rgba(41,38,27,.45);padding:10px 0 0}
+  .twk-sect:first-child{padding-top:0}
+
+  .twk-field{appearance:none;width:100%;height:26px;padding:0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;
+    background:rgba(255,255,255,.6);color:inherit;font:inherit;outline:none}
+  .twk-field:focus{border-color:rgba(0,0,0,.25);background:rgba(255,255,255,.85)}
+  select.twk-field{padding-right:22px;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='rgba(0,0,0,.5)' d='M0 0h10L5 6z'/></svg>");
+    background-repeat:no-repeat;background-position:right 8px center}
+
+  .twk-slider{appearance:none;-webkit-appearance:none;width:100%;height:4px;margin:6px 0;
+    border-radius:999px;background:rgba(0,0,0,.12);outline:none}
+  .twk-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+    width:14px;height:14px;border-radius:50%;background:#fff;
+    border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+  .twk-slider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;
+    background:#fff;border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+
+  .twk-seg{position:relative;display:flex;padding:2px;border-radius:8px;
+    background:rgba(0,0,0,.06);user-select:none}
+  .twk-seg-thumb{position:absolute;top:2px;bottom:2px;border-radius:6px;
+    background:rgba(255,255,255,.9);box-shadow:0 1px 2px rgba(0,0,0,.12);
+    transition:left .15s cubic-bezier(.3,.7,.4,1),width .15s}
+  .twk-seg.dragging .twk-seg-thumb{transition:none}
+  .twk-seg button{appearance:none;position:relative;z-index:1;flex:1;border:0;
+    background:transparent;color:inherit;font:inherit;font-weight:500;height:22px;
+    border-radius:6px;cursor:default;padding:0}
+
+  .twk-toggle{position:relative;width:32px;height:18px;border:0;border-radius:999px;
+    background:rgba(0,0,0,.15);transition:background .15s;cursor:default;padding:0}
+  .twk-toggle[data-on="1"]{background:#34c759}
+  .twk-toggle i{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+  .twk-toggle[data-on="1"] i{transform:translateX(14px)}
+
+  .twk-num{display:flex;align-items:center;height:26px;padding:0 0 0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;background:rgba(255,255,255,.6)}
+  .twk-num-lbl{font-weight:500;color:rgba(41,38,27,.6);cursor:ew-resize;
+    user-select:none;padding-right:8px}
+  .twk-num input{flex:1;min-width:0;height:100%;border:0;background:transparent;
+    font:inherit;font-variant-numeric:tabular-nums;text-align:right;padding:0 8px 0 0;
+    outline:none;color:inherit;-moz-appearance:textfield}
+  .twk-num input::-webkit-inner-spin-button,.twk-num input::-webkit-outer-spin-button{
+    -webkit-appearance:none;margin:0}
+  .twk-num-unit{padding-right:8px;color:rgba(41,38,27,.45)}
+
+  .twk-btn{appearance:none;height:26px;padding:0 12px;border:0;border-radius:7px;
+    background:rgba(0,0,0,.78);color:#fff;font:inherit;font-weight:500;cursor:default}
+  .twk-btn:hover{background:rgba(0,0,0,.88)}
+  .twk-btn.secondary{background:rgba(0,0,0,.06);color:inherit}
+  .twk-btn.secondary:hover{background:rgba(0,0,0,.1)}
+
+  .twk-swatch{appearance:none;-webkit-appearance:none;width:56px;height:22px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:6px;padding:0;cursor:default;
+    background:transparent;flex-shrink:0}
+  .twk-swatch::-webkit-color-swatch-wrapper{padding:0}
+  .twk-swatch::-webkit-color-swatch{border:0;border-radius:5.5px}
+  .twk-swatch::-moz-color-swatch{border:0;border-radius:5.5px}
+`;
+
+// ── useTweaks ───────────────────────────────────────────────────────────────
+// Single source of truth for tweak values. setTweak persists via the host
+// (__edit_mode_set_keys → host rewrites the EDITMODE block on disk).
+function useTweaks(defaults) {
+  const [values, setValues] = React.useState(defaults);
+  const setTweak = React.useCallback((key, val) => {
+    setValues((prev) => ({ ...prev, [key]: val }));
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { [key]: val } }, '*');
+  }, []);
+  return [values, setTweak];
+}
+
+// ── TweaksPanel ─────────────────────────────────────────────────────────────
+// Floating shell. Registers the protocol listener BEFORE announcing
+// availability — if the announce ran first, the host's activate could land
+// before our handler exists and the toolbar toggle would silently no-op.
+// The close button posts __edit_mode_dismissed so the host's toolbar toggle
+// flips off in lockstep; the host echoes __deactivate_edit_mode back which
+// is what actually hides the panel.
+function TweaksPanel({ title = 'Tweaks', children }) {
+  const [open, setOpen] = React.useState(false);
+  const dragRef = React.useRef(null);
+  const offsetRef = React.useRef({ x: 16, y: 16 });
+  const PAD = 16;
+
+  const clampToViewport = React.useCallback(() => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const w = panel.offsetWidth, h = panel.offsetHeight;
+    const maxRight = Math.max(PAD, window.innerWidth - w - PAD);
+    const maxBottom = Math.max(PAD, window.innerHeight - h - PAD);
+    offsetRef.current = {
+      x: Math.min(maxRight, Math.max(PAD, offsetRef.current.x)),
+      y: Math.min(maxBottom, Math.max(PAD, offsetRef.current.y)),
+    };
+    panel.style.right = offsetRef.current.x + 'px';
+    panel.style.bottom = offsetRef.current.y + 'px';
+  }, []);
+
+  React.useEffect(() => {
+    if (!open) return;
+    clampToViewport();
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', clampToViewport);
+      return () => window.removeEventListener('resize', clampToViewport);
+    }
+    const ro = new ResizeObserver(clampToViewport);
+    ro.observe(document.documentElement);
+    return () => ro.disconnect();
+  }, [open, clampToViewport]);
+
+  React.useEffect(() => {
+    const onMsg = (e) => {
+      const t = e?.data?.type;
+      if (t === '__activate_edit_mode') setOpen(true);
+      else if (t === '__deactivate_edit_mode') setOpen(false);
+    };
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+
+  const dismiss = () => {
+    setOpen(false);
+    window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*');
+  };
+
+  const onDragStart = (e) => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const r = panel.getBoundingClientRect();
+    const sx = e.clientX, sy = e.clientY;
+    const startRight = window.innerWidth - r.right;
+    const startBottom = window.innerHeight - r.bottom;
+    const move = (ev) => {
+      offsetRef.current = {
+        x: startRight - (ev.clientX - sx),
+        y: startBottom - (ev.clientY - sy),
+      };
+      clampToViewport();
+    };
+    const up = () => {
+      window.removeEventListener('mousemove', move);
+      window.removeEventListener('mouseup', up);
+    };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  };
+
+  if (!open) return null;
+  return (
+    <>
+      <style>{__TWEAKS_STYLE}</style>
+      <div ref={dragRef} className="twk-panel"
+           style={{ right: offsetRef.current.x, bottom: offsetRef.current.y }}>
+        <div className="twk-hd" onMouseDown={onDragStart}>
+          <b>{title}</b>
+          <button className="twk-x" aria-label="Close tweaks"
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={dismiss}>✕</button>
+        </div>
+        <div className="twk-body">{children}</div>
+      </div>
+    </>
+  );
+}
+
+// ── Layout helpers ──────────────────────────────────────────────────────────
+
+function TweakSection({ label, children }) {
+  return (
+    <>
+      <div className="twk-sect">{label}</div>
+      {children}
+    </>
+  );
+}
+
+function TweakRow({ label, value, children, inline = false }) {
+  return (
+    <div className={inline ? 'twk-row twk-row-h' : 'twk-row'}>
+      <div className="twk-lbl">
+        <span>{label}</span>
+        {value != null && <span className="twk-val">{value}</span>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+// ── Controls ────────────────────────────────────────────────────────────────
+
+function TweakSlider({ label, value, min = 0, max = 100, step = 1, unit = '', onChange }) {
+  return (
+    <TweakRow label={label} value={`${value}${unit}`}>
+      <input type="range" className="twk-slider" min={min} max={max} step={step}
+             value={value} onChange={(e) => onChange(Number(e.target.value))} />
+    </TweakRow>
+  );
+}
+
+function TweakToggle({ label, value, onChange }) {
+  return (
+    <div className="twk-row twk-row-h">
+      <div className="twk-lbl"><span>{label}</span></div>
+      <button type="button" className="twk-toggle" data-on={value ? '1' : '0'}
+              role="switch" aria-checked={!!value}
+              onClick={() => onChange(!value)}><i /></button>
+    </div>
+  );
+}
+
+function TweakRadio({ label, value, options, onChange }) {
+  const trackRef = React.useRef(null);
+  const [dragging, setDragging] = React.useState(false);
+  const opts = options.map((o) => (typeof o === 'object' ? o : { value: o, label: o }));
+  const idx = Math.max(0, opts.findIndex((o) => o.value === value));
+  const n = opts.length;
+
+  // The active value is read by pointer-move handlers attached for the lifetime
+  // of a drag — ref it so a stale closure doesn't fire onChange for every move.
+  const valueRef = React.useRef(value);
+  valueRef.current = value;
+
+  const segAt = (clientX) => {
+    const r = trackRef.current.getBoundingClientRect();
+    const inner = r.width - 4;
+    const i = Math.floor(((clientX - r.left - 2) / inner) * n);
+    return opts[Math.max(0, Math.min(n - 1, i))].value;
+  };
+
+  const onPointerDown = (e) => {
+    setDragging(true);
+    const v0 = segAt(e.clientX);
+    if (v0 !== valueRef.current) onChange(v0);
+    const move = (ev) => {
+      if (!trackRef.current) return;
+      const v = segAt(ev.clientX);
+      if (v !== valueRef.current) onChange(v);
+    };
+    const up = () => {
+      setDragging(false);
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+
+  return (
+    <TweakRow label={label}>
+      <div ref={trackRef} role="radiogroup" onPointerDown={onPointerDown}
+           className={dragging ? 'twk-seg dragging' : 'twk-seg'}>
+        <div className="twk-seg-thumb"
+             style={{ left: `calc(2px + ${idx} * (100% - 4px) / ${n})`,
+                      width: `calc((100% - 4px) / ${n})` }} />
+        {opts.map((o) => (
+          <button key={o.value} type="button" role="radio" aria-checked={o.value === value}>
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </TweakRow>
+  );
+}
+
+function TweakSelect({ label, value, options, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <select className="twk-field" value={value} onChange={(e) => onChange(e.target.value)}>
+        {options.map((o) => {
+          const v = typeof o === 'object' ? o.value : o;
+          const l = typeof o === 'object' ? o.label : o;
+          return <option key={v} value={v}>{l}</option>;
+        })}
+      </select>
+    </TweakRow>
+  );
+}
+
+function TweakText({ label, value, placeholder, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <input className="twk-field" type="text" value={value} placeholder={placeholder}
+             onChange={(e) => onChange(e.target.value)} />
+    </TweakRow>
+  );
+}
+
+function TweakNumber({ label, value, min, max, step = 1, unit = '', onChange }) {
+  const clamp = (n) => {
+    if (min != null && n < min) return min;
+    if (max != null && n > max) return max;
+    return n;
+  };
+  const startRef = React.useRef({ x: 0, val: 0 });
+  const onScrubStart = (e) => {
+    e.preventDefault();
+    startRef.current = { x: e.clientX, val: value };
+    const decimals = (String(step).split('.')[1] || '').length;
+    const move = (ev) => {
+      const dx = ev.clientX - startRef.current.x;
+      const raw = startRef.current.val + dx * step;
+      const snapped = Math.round(raw / step) * step;
+      onChange(clamp(Number(snapped.toFixed(decimals))));
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+  return (
+    <div className="twk-num">
+      <span className="twk-num-lbl" onPointerDown={onScrubStart}>{label}</span>
+      <input type="number" value={value} min={min} max={max} step={step}
+             onChange={(e) => onChange(clamp(Number(e.target.value)))} />
+      {unit && <span className="twk-num-unit">{unit}</span>}
+    </div>
+  );
+}
+
+function TweakColor({ label, value, onChange }) {
+  return (
+    <div className="twk-row twk-row-h">
+      <div className="twk-lbl"><span>{label}</span></div>
+      <input type="color" className="twk-swatch" value={value}
+             onChange={(e) => onChange(e.target.value)} />
+    </div>
+  );
+}
+
+function TweakButton({ label, onClick, secondary = false }) {
+  return (
+    <button type="button" className={secondary ? 'twk-btn secondary' : 'twk-btn'}
+            onClick={onClick}>{label}</button>
+  );
+}
+
+Object.assign(window, {
+  useTweaks, TweaksPanel, TweakSection, TweakRow,
+  TweakSlider, TweakToggle, TweakRadio, TweakSelect,
+  TweakText, TweakNumber, TweakColor, TweakButton,
+});
+
+
+/* ── Shared Components for Yousef Balbisi Portfolio ── */
+
+/* ── Theme Definitions ── */
+const THEMES = {
+  gallery: {
+    name: "Gallery Minimal",
+    bg: "#FAF8F5",
+    bgAlt: "#F2EDE8",
+    text: "#1A1A1A",
+    textMuted: "#6B6560",
+    accent: "#C4A882",
+    accentHover: "#B08E64",
+    navBg: "rgba(250,248,245,0.95)",
+    cardBg: "#FFFFFF",
+    cardBorder: "#E8E2DA",
+    heroOverlay: "rgba(250,248,245,0.6)",
+    font: "'Cormorant Garamond', Georgia, serif",
+    fontBody: "'DM Sans', Helvetica, sans-serif",
+  },
+  dark: {
+    name: "Dark Immersive",
+    bg: "#0F0F0F",
+    bgAlt: "#1A1917",
+    text: "#F0EDE8",
+    textMuted: "#9A958D",
+    accent: "#D4A96A",
+    accentHover: "#E0BB80",
+    navBg: "rgba(15,15,15,0.95)",
+    cardBg: "#1A1917",
+    cardBorder: "#2E2C28",
+    heroOverlay: "rgba(15,15,15,0.55)",
+    font: "'Cormorant Garamond', Georgia, serif",
+    fontBody: "'DM Sans', Helvetica, sans-serif",
+  },
+  warm: {
+    name: "Warm Editorial",
+    bg: "#F5EEE4",
+    bgAlt: "#EAE0D2",
+    text: "#2C2520",
+    textMuted: "#7A6E63",
+    accent: "#B85C38",
+    accentHover: "#A04E2E",
+    navBg: "rgba(245,238,228,0.95)",
+    cardBg: "#FDF9F4",
+    cardBorder: "#DDD4C6",
+    heroOverlay: "rgba(245,238,228,0.5)",
+    font: "'Playfair Display', Georgia, serif",
+    fontBody: "'DM Sans', Helvetica, sans-serif",
+  },
+};
+
+/* ── Sample artwork data ── */
+const ARTWORKS = [
+  { id: 1, title: "Penguin Under Stars", medium: "Pen & Ink on Paper", year: "2024", price: "$350", src: "assets/penguin-ink.jpeg", category: "ink", story: "A lone penguin beneath a vast night sky — this piece was born from the feeling of standing small against the world, yet finding peace in solitude. The contrast between the dense black sky and the white snow mirrors the duality I often feel between belonging and displacement." },
+  { id: 2, title: "Window to the Mountains", medium: "Pen & Ink with Color", year: "2024", price: "$420", src: "assets/window-mountains.jpeg", category: "ink", story: "Drawn from a memory of mornings in my grandmother's house, where golden curtains framed a world that felt infinite. The mountains beyond the window are not a specific place — they are every place I've longed to reach. The touch of yellow is warmth itself, the feeling of home." },
+  { id: 3, title: "Blue Eyes", medium: "Pencil & Color on Paper", year: "2024", price: "$500", src: "assets/blue-eyes.jpeg", category: "portrait", story: "Eyes carry stories that words cannot. These blue eyes belong to no one and everyone — they are the gaze of someone who has witnessed both beauty and loss. The wisps of hair floating outward represent thoughts escaping, memories that refuse to stay contained." },
+  { id: 4, title: "Girl with Bandage", medium: "Pencil on Paper", year: "2024", price: "$480", src: "assets/girl-portrait.jpeg", category: "portrait", story: "This portrait explores vulnerability and resilience. The bandage across her nose tells a story of being wounded yet unbowed. Her direct gaze challenges the viewer — she is not asking for sympathy, she is demanding to be seen. The heart on the bandaid is defiance dressed as tenderness." },
+  { id: 5, title: "Cherry Blossom Tree", medium: "Acrylic on Canvas", year: "2024", price: "$680", src: "assets/cherry-tree.jpeg", category: "acrylic", story: "Blossoms falling from a tree glowing against darkness — this painting is about the beauty that exists in impermanence. The petals drift downward like days passing, like people leaving. But the tree still stands, still blooms. It is a painting about hope after loss, about life persisting." },
+];
+
+/* ── Animation Helpers ── */
+function FadeIn({ children, delay = 0, direction = "up", duration = 0.7, style = {} }) {
+  const ref = React.useRef(null);
+  const [visible, setVisible] = React.useState(false);
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } }, { threshold: 0.1 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  const offsets = { up: "translateY(40px)", down: "translateY(-40px)", left: "translateX(40px)", right: "translateX(-40px)", none: "none" };
+  return (
+    <div ref={ref} style={{
+      opacity: visible ? 1 : 0,
+      transform: visible ? "none" : offsets[direction],
+      transition: `opacity ${duration}s cubic-bezier(.22,1,.36,1) ${delay}s, transform ${duration}s cubic-bezier(.22,1,.36,1) ${delay}s`,
+      ...style,
+    }}>
+      {children}
+    </div>
+  );
+}
+
+function PageTransition({ children, pageKey }) {
+  const [display, setDisplay] = React.useState(children);
+  const [anim, setAnim] = React.useState("in");
+  const prevKey = React.useRef(pageKey);
+  React.useEffect(() => {
+    if (pageKey !== prevKey.current) {
+      setAnim("out");
+      const t = setTimeout(() => {
+        setDisplay(children);
+        setAnim("in");
+        prevKey.current = pageKey;
+      }, 250);
+      return () => clearTimeout(t);
+    } else {
+      setDisplay(children);
+    }
+  }, [pageKey, children]);
+  return (
+    <div style={{
+      opacity: anim === "in" ? 1 : 0,
+      transform: anim === "in" ? "none" : "translateY(16px)",
+      transition: "opacity 0.35s ease, transform 0.35s ease",
+    }}>
+      {display}
+    </div>
+  );
+}
+
+/* ── Placeholder Component ── */
+function ArtPlaceholder({ text, theme, style }) {
+  const t = THEMES[theme];
+  return (
+    <div style={{
+      width: "100%", height: "100%",
+      background: `repeating-linear-gradient(135deg, ${t.cardBorder}22, ${t.cardBorder}22 10px, transparent 10px, transparent 20px)`,
+      backgroundColor: t.bgAlt,
+      display: "flex", alignItems: "center", justifyContent: "center",
+      fontFamily: "monospace", fontSize: 13, color: t.textMuted,
+      textAlign: "center", whiteSpace: "pre-line", lineHeight: 1.6,
+      ...style,
+    }}>
+      {text}
+    </div>
+  );
+}
+
+/* ── Navigation ── */
+function Nav({ theme, currentPage, setPage }) {
+  const t = THEMES[theme];
+  const links = ["home", "gallery", "about", "shop", "contact"];
+  return (
+    <nav style={{
+      position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
+      background: t.navBg, backdropFilter: "blur(12px)",
+      borderBottom: `1px solid ${t.cardBorder}`,
+      padding: "0 40px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between",
+    }}>
+      <div
+        onClick={() => setPage("home")}
+        style={{ cursor: "pointer", fontFamily: t.font, fontSize: 22, fontWeight: 600, color: t.text, letterSpacing: 1 }}
+      >
+        Yousef Balbisi
+      </div>
+      <div style={{ display: "flex", gap: 32 }}>
+        {links.map(l => (
+          <div
+            key={l}
+            onClick={() => setPage(l)}
+            style={{
+              cursor: "pointer", fontFamily: t.fontBody, fontSize: 14,
+              textTransform: "uppercase", letterSpacing: 2,
+              color: currentPage === l ? t.accent : t.textMuted,
+              borderBottom: currentPage === l ? `2px solid ${t.accent}` : "2px solid transparent",
+              paddingBottom: 4,
+              transition: "all 0.3s",
+            }}
+            onMouseEnter={e => { e.target.style.color = t.accent; }}
+            onMouseLeave={e => { if (currentPage !== l) e.target.style.color = t.textMuted; }}
+          >
+            {l}
+          </div>
+        ))}
+      </div>
+    </nav>
+  );
+}
+
+/* ── Hero Section ── */
+function Hero({ theme, setPage, onToggleTheme }) {
+  const t = THEMES[theme];
+  return (
+    <section style={{
+      marginTop: 64, height: "calc(100vh - 64px)", display: "flex", alignItems: "center", justifyContent: "center",
+      background: t.bg, position: "relative", overflow: "hidden",
+    }}>
+      <div style={{
+        position: "absolute", inset: 0,
+        backgroundImage: "url(assets/penguin-ink.jpeg)",
+        backgroundSize: "cover", backgroundPosition: "center",
+        opacity: theme === "dark" ? 0.15 : 0.1,
+        filter: theme === "dark" ? "none" : "grayscale(100%)",
+      }}></div>
+      <div style={{ position: "relative", textAlign: "center", maxWidth: 700, padding: 40 }}>
+        <FadeIn delay={0.1} direction="up">
+        <h1 style={{
+          fontFamily: t.font, fontSize: 64, fontWeight: 400,
+          color: t.text, lineHeight: 1.15, margin: 0,
+          letterSpacing: -1,
+        }}>
+          Stories told<br />through ink & color
+        </h1>
+        </FadeIn>
+        <FadeIn delay={0.35} direction="up">
+        <p style={{
+          fontFamily: t.fontBody, fontSize: 18, color: t.textMuted,
+          marginTop: 24, lineHeight: 1.7, maxWidth: 500, marginLeft: "auto", marginRight: "auto",
+        }}>
+          Palestinian roots, Syrian memories, Lebanese light — each piece carries a world between its lines.
+        </p>
+        </FadeIn>
+        <FadeIn delay={0.55} direction="up">
+        <div
+          onClick={() => setPage("gallery")}
+          style={{
+            display: "inline-block", marginTop: 40, cursor: "pointer",
+            fontFamily: t.fontBody, fontSize: 14, textTransform: "uppercase", letterSpacing: 3,
+            color: t.accent, borderBottom: `1px solid ${t.accent}`, paddingBottom: 6,
+          }}
+        >
+          View the collection
+        </div>
+        </FadeIn>
+        <FadeIn delay={0.7} direction="up">
+        <button onClick={onToggleTheme} style={{
+          marginTop: 32, padding: "12px 28px", cursor: "pointer",
+          background: "none", border: `1px solid ${t.textMuted}44`,
+          borderRadius: 24, fontFamily: t.fontBody, fontSize: 13,
+          color: t.textMuted, letterSpacing: 1, transition: "all 0.4s",
+          display: "inline-flex", alignItems: "center", gap: 8,
+        }}
+        onMouseEnter={e => { e.target.style.borderColor = t.accent; e.target.style.color = t.accent; }}
+        onMouseLeave={e => { e.target.style.borderColor = t.textMuted + "44"; e.target.style.color = t.textMuted; }}
+        >
+          {theme === "dark" ? "☀" : "●"} {theme === "dark" ? "White mode" : "Dark mode"}
+        </button>
+        </FadeIn>
+      </div>
+    </section>
+  );
+}
+
+/* ── Gallery Page ── */
+function GalleryPage({ theme, setSelectedArt }) {
+  const t = THEMES[theme];
+  const [filter, setFilter] = React.useState("all");
+  const cats = ["all", "ink", "acrylic", "portrait"];
+  const filtered = filter === "all" ? ARTWORKS : ARTWORKS.filter(a => a.category === filter);
+
+  return (
+    <section style={{ marginTop: 64, padding: "60px 40px 80px", background: t.bg, minHeight: "100vh" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+        <h2 style={{ fontFamily: t.font, fontSize: 42, fontWeight: 400, color: t.text, margin: "0 0 12px" }}>Gallery</h2>
+        <p style={{ fontFamily: t.fontBody, fontSize: 16, color: t.textMuted, margin: "0 0 40px" }}>Selected works in pen, ink, and acrylic</p>
+
+        <div style={{ display: "flex", gap: 20, marginBottom: 40 }}>
+          {cats.map(c => (
+            <button key={c} onClick={() => setFilter(c)} style={{
+              background: "none", border: "none", cursor: "pointer",
+              fontFamily: t.fontBody, fontSize: 13, textTransform: "uppercase", letterSpacing: 2,
+              color: filter === c ? t.accent : t.textMuted,
+              borderBottom: filter === c ? `2px solid ${t.accent}` : "2px solid transparent",
+              paddingBottom: 4, transition: "all 0.3s",
+            }}>
+              {c}
+            </button>
+          ))}
+        </div>
+
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+          gap: 24,
+        }}>
+          {filtered.map((art, i) => (
+            <FadeIn key={art.id} delay={i * 0.1} direction="up">
+              <ArtCard art={art} theme={theme} onClick={() => setSelectedArt(art)} />
+            </FadeIn>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ArtCard({ art, theme, onClick }) {
+  const t = THEMES[theme];
+  const [hovered, setHovered] = React.useState(false);
+  return (
+    <div
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        cursor: "pointer", borderRadius: 4, overflow: "hidden",
+        background: t.cardBg, border: `1px solid ${t.cardBorder}`,
+        transform: hovered ? "translateY(-4px)" : "translateY(0)",
+        boxShadow: hovered ? `0 12px 32px ${t.text}15` : "none",
+        transition: "all 0.35s ease",
+      }}
+    >
+      <div style={{ aspectRatio: "4/5", overflow: "hidden" }}>
+        {art.src ? (
+          <img src={art.src} alt={art.title} style={{
+            width: "100%", height: "100%", objectFit: "cover",
+            transform: hovered ? "scale(1.03)" : "scale(1)",
+            transition: "transform 0.5s ease",
+          }} />
+        ) : (
+          <ArtPlaceholder text={art.placeholder} theme={theme} />
+        )}
+      </div>
+      <div style={{ padding: "16px 20px" }}>
+        <div style={{ fontFamily: t.font, fontSize: 18, color: t.text, fontWeight: 500 }}>{art.title}</div>
+        <div style={{ fontFamily: t.fontBody, fontSize: 13, color: t.textMuted, marginTop: 4 }}>{art.medium} · {art.year}</div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Lightbox ── */
+function Lightbox({ art, theme, onClose }) {
+  const t = THEMES[theme];
+  if (!art) return null;
+  return (
+    <div onClick={onClose} style={{
+      position: "fixed", inset: 0, zIndex: 200,
+      background: theme === "dark" ? "rgba(0,0,0,0.92)" : "rgba(0,0,0,0.85)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      padding: 40, cursor: "pointer",
+    }}>
+      <div onClick={e => e.stopPropagation()} style={{
+        display: "flex", gap: 40, maxWidth: 1000, width: "100%",
+        alignItems: "center", cursor: "default",
+      }}>
+        <div style={{ flex: "1 1 60%", maxHeight: "80vh", borderRadius: 4, overflow: "hidden" }}>
+          {art.src ? (
+            <img src={art.src} alt={art.title} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+          ) : (
+            <ArtPlaceholder text={art.placeholder} theme="dark" style={{ minHeight: 400 }} />
+          )}
+        </div>
+        <div style={{ flex: "1 1 35%", color: "#F0EDE8", maxHeight: "80vh", overflowY: "auto" }}>
+          <h3 style={{ fontFamily: THEMES.gallery.font, fontSize: 32, fontWeight: 400, margin: 0 }}>{art.title}</h3>
+          <p style={{ fontFamily: THEMES.gallery.fontBody, fontSize: 15, color: "#9A958D", marginTop: 8 }}>{art.medium} · {art.year}</p>
+          {art.story && <p style={{ fontFamily: THEMES.gallery.fontBody, fontSize: 14, color: "#B8B2A8", marginTop: 20, lineHeight: 1.8, fontStyle: "italic" }}>{art.story}</p>}
+          <p style={{ fontFamily: THEMES.gallery.fontBody, fontSize: 24, color: "#D4A96A", marginTop: 24 }}>{art.price}</p>
+          <button style={{
+            marginTop: 24, padding: "14px 32px", background: "none",
+            border: "1px solid #D4A96A", color: "#D4A96A", cursor: "pointer",
+            fontFamily: THEMES.gallery.fontBody, fontSize: 13, textTransform: "uppercase",
+            letterSpacing: 2, borderRadius: 2, transition: "all 0.3s",
+          }}
+          onMouseEnter={e => { e.target.style.background = "#D4A96A"; e.target.style.color = "#0F0F0F"; }}
+          onMouseLeave={e => { e.target.style.background = "none"; e.target.style.color = "#D4A96A"; }}
+          >
+            Inquire about this piece
+          </button>
+          <div onClick={onClose} style={{
+            marginTop: 40, fontFamily: THEMES.gallery.fontBody, fontSize: 13,
+            color: "#9A958D", cursor: "pointer", textTransform: "uppercase", letterSpacing: 2,
+          }}>← Back to gallery</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── About Page ── */
+function AboutPage({ theme }) {
+  const t = THEMES[theme];
+  return (
+    <section style={{ marginTop: 64, padding: "80px 40px", background: t.bg, minHeight: "100vh" }}>
+      <div style={{ maxWidth: 900, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: 60, alignItems: "start" }}>
+        <FadeIn delay={0} direction="left">
+        <div>
+          <img src="assets/portrait.jpeg" alt="Yousef Balbisi" style={{
+            width: "100%", aspectRatio: "3/4", objectFit: "cover", borderRadius: 4,
+          }} />
+        </div>
+        </FadeIn>
+        <FadeIn delay={0.2} direction="right">
+        <div>
+          <h2 style={{ fontFamily: t.font, fontSize: 42, fontWeight: 400, color: t.text, margin: "0 0 8px" }}>About</h2>
+          <div style={{ width: 40, height: 2, background: t.accent, marginBottom: 32 }}></div>
+          <p style={{ fontFamily: t.fontBody, fontSize: 16, color: t.text, lineHeight: 1.8, margin: "0 0 20px" }}>
+            I am Yousef Balbisi, a Palestinian artist born in Syria and raised between worlds. With a Lebanese mother and a life shaped by the landscapes of Damascus, Beirut, and the stories carried across borders, my work is a conversation between memory and presence.
+          </p>
+          <p style={{ fontFamily: t.fontBody, fontSize: 16, color: t.text, lineHeight: 1.8, margin: "0 0 20px" }}>
+            My practice moves between pen and ink — where every line is deliberate and permanent — and acrylic painting, where color becomes emotion. I draw portraits that search for truth in a face, and landscapes that hold the weight of places I carry with me.
+          </p>
+          <p style={{ fontFamily: t.fontBody, fontSize: 16, color: t.text, lineHeight: 1.8, margin: "0 0 32px" }}>
+            Based in Lebanon, I work from a small studio where the Mediterranean light meets the ink on my desk. Each piece is an act of remembering, of insisting that beauty survives.
+          </p>
+          <div style={{ fontFamily: t.fontBody, fontSize: 13, color: t.textMuted, textTransform: "uppercase", letterSpacing: 2 }}>
+            Beirut, Lebanon
+          </div>
+        </div>
+        </FadeIn>
+      </div>
+    </section>
+  );
+}
+
+function ShopPage({ theme, setSelectedArt }) {
+  const t = THEMES[theme];
+  return (
+    <section style={{ marginTop: 64, padding: "60px 40px 80px", background: t.bg, minHeight: "100vh" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+        <h2 style={{ fontFamily: t.font, fontSize: 42, fontWeight: 400, color: t.text, margin: "0 0 12px" }}>Shop</h2>
+        <p style={{ fontFamily: t.fontBody, fontSize: 16, color: t.textMuted, margin: "0 0 40px" }}>Original works available for purchase. Contact for commissions.</p>
+
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+          gap: 24,
+        }}>
+          {ARTWORKS.map(art => (
+            <div key={art.id} onClick={() => setSelectedArt(art)} style={{
+              cursor: "pointer", borderRadius: 4, overflow: "hidden",
+              background: t.cardBg, border: `1px solid ${t.cardBorder}`,
+              transition: "all 0.3s",
+            }}>
+              <div style={{ aspectRatio: "1/1", overflow: "hidden" }}>
+                {art.src ? (
+                  <img src={art.src} alt={art.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                ) : (
+                  <ArtPlaceholder text={art.placeholder} theme={theme} />
+                )}
+              </div>
+              <div style={{ padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                <div>
+                  <div style={{ fontFamily: t.font, fontSize: 17, color: t.text }}>{art.title}</div>
+                  <div style={{ fontFamily: t.fontBody, fontSize: 12, color: t.textMuted, marginTop: 2 }}>{art.medium}</div>
+                </div>
+                <div style={{ fontFamily: t.fontBody, fontSize: 16, color: t.accent, fontWeight: 500 }}>{art.price}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── Contact Page ── */
+function ContactPage({ theme }) {
+  const t = THEMES[theme];
+  const [sent, setSent] = React.useState(false);
+  return (
+    <section style={{ marginTop: 64, padding: "80px 40px", background: t.bg, minHeight: "100vh" }}>
+      <div style={{ maxWidth: 600, margin: "0 auto" }}>
+        <h2 style={{ fontFamily: t.font, fontSize: 42, fontWeight: 400, color: t.text, margin: "0 0 8px" }}>Get in touch</h2>
+        <div style={{ width: 40, height: 2, background: t.accent, marginBottom: 16 }}></div>
+        <p style={{ fontFamily: t.fontBody, fontSize: 16, color: t.textMuted, margin: "0 0 40px", lineHeight: 1.7 }}>
+          For commissions, purchases, or exhibition inquiries — I'd love to hear from you.
+        </p>
+        {sent ? (
+          <div style={{
+            padding: 40, textAlign: "center", background: t.cardBg,
+            border: `1px solid ${t.cardBorder}`, borderRadius: 4,
+          }}>
+            <div style={{ fontFamily: t.font, fontSize: 28, color: t.text }}>Thank you</div>
+            <p style={{ fontFamily: t.fontBody, fontSize: 15, color: t.textMuted, marginTop: 8 }}>I'll respond within a few days.</p>
+          </div>
+        ) : (
+          <form onSubmit={e => { e.preventDefault(); setSent(true); }} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            {[{ label: "Name", type: "text" }, { label: "Email", type: "email" }].map(f => (
+              <div key={f.label}>
+                <label style={{ fontFamily: t.fontBody, fontSize: 12, color: t.textMuted, textTransform: "uppercase", letterSpacing: 2, display: "block", marginBottom: 8 }}>{f.label}</label>
+                <input type={f.type} required style={{
+                  width: "100%", padding: "12px 16px", background: t.cardBg,
+                  border: `1px solid ${t.cardBorder}`, borderRadius: 2,
+                  fontFamily: t.fontBody, fontSize: 15, color: t.text,
+                  outline: "none", boxSizing: "border-box",
+                  transition: "border 0.3s",
+                }}
+                onFocus={e => e.target.style.borderColor = t.accent}
+                onBlur={e => e.target.style.borderColor = t.cardBorder}
+                />
+              </div>
+            ))}
+            <div>
+              <label style={{ fontFamily: t.fontBody, fontSize: 12, color: t.textMuted, textTransform: "uppercase", letterSpacing: 2, display: "block", marginBottom: 8 }}>Message</label>
+              <textarea required rows={5} style={{
+                width: "100%", padding: "12px 16px", background: t.cardBg,
+                border: `1px solid ${t.cardBorder}`, borderRadius: 2,
+                fontFamily: t.fontBody, fontSize: 15, color: t.text,
+                outline: "none", resize: "vertical", boxSizing: "border-box",
+                transition: "border 0.3s",
+              }}
+              onFocus={e => e.target.style.borderColor = t.accent}
+              onBlur={e => e.target.style.borderColor = t.cardBorder}
+              ></textarea>
+            </div>
+            <button type="submit" style={{
+              padding: "14px 32px", background: t.accent, border: "none",
+              color: "#fff", cursor: "pointer", borderRadius: 2,
+              fontFamily: t.fontBody, fontSize: 13, textTransform: "uppercase",
+              letterSpacing: 2, transition: "background 0.3s", alignSelf: "flex-start",
+            }}
+            onMouseEnter={e => e.target.style.background = t.accentHover}
+            onMouseLeave={e => e.target.style.background = t.accent}
+            >
+              Send message
+            </button>
+          </form>
+        )}
+      </div>
+    </section>
+  );
+}
+
+/* ── Footer ── */
+function Footer({ theme }) {
+  const t = THEMES[theme];
+  return (
+    <footer style={{
+      padding: "40px", background: t.bgAlt,
+      borderTop: `1px solid ${t.cardBorder}`,
+      textAlign: "center",
+    }}>
+      <div style={{ fontFamily: t.font, fontSize: 18, color: t.text }}>Yousef Balbisi</div>
+      <div style={{ fontFamily: t.fontBody, fontSize: 13, color: t.textMuted, marginTop: 8 }}>
+        Palestinian artist · Beirut, Lebanon
+      </div>
+    </footer>
+  );
+}
+
+/* ── Export ── */
+Object.assign(window, {
+  THEMES, ARTWORKS,
+  ArtPlaceholder, Nav, Hero, GalleryPage, ArtCard, Lightbox,
+  AboutPage, ShopPage, ContactPage, Footer,
+});
+
+
+    const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+      "theme": "gallery"
+    }/*EDITMODE-END*/;
+
+    function App() {
+      const [tweakValues, setTweak] = useTweaks(TWEAK_DEFAULTS);
+      const [page, setPage] = React.useState("home");
+      const [selectedArt, setSelectedArt] = React.useState(null);
+      const [tweaksOpen, setTweaksOpen] = React.useState(false);
+
+      const theme = tweakValues.theme;
+      const t = THEMES[theme];
+
+      React.useEffect(() => { window.scrollTo(0, 0); }, [page]);
+      React.useEffect(() => {
+        document.body.style.background = t.bg;
+        document.body.style.transition = "background 0.5s";
+      }, [theme]);
+
+      const renderPage = () => {
+        switch (page) {
+          case "home": return <Hero theme={theme} setPage={setPage} onToggleTheme={() => setTweak("theme", theme === "dark" ? "gallery" : "dark")} />;
+          case "gallery": return <GalleryPage theme={theme} setSelectedArt={setSelectedArt} />;
+          case "about": return <AboutPage theme={theme} />;
+          case "shop": return <ShopPage theme={theme} setSelectedArt={setSelectedArt} />;
+          case "contact": return <ContactPage theme={theme} />;
+          default: return <Hero theme={theme} setPage={setPage} />;
+        }
+      };
+
+      return (
+        <div style={{ minHeight: "100vh", background: t.bg, transition: "background 0.5s" }}>
+          <Nav theme={theme} currentPage={page} setPage={setPage} />
+          <PageTransition pageKey={page}>
+            {renderPage()}
+          </PageTransition>
+          {page !== "home" && <Footer theme={theme} />}
+          <Lightbox art={selectedArt} theme={theme} onClose={() => setSelectedArt(null)} />
+
+          <TweaksPanel title="Tweaks">
+            <TweakSection label="Visual Direction">
+              <TweakRadio
+                label="Theme"
+                value={tweakValues.theme}
+                options={[
+                  { value: "gallery", label: "Gallery Minimal" },
+                  { value: "dark", label: "Dark Immersive" },
+                  { value: "warm", label: "Warm Editorial" },
+                ]}
+                onChange={v => setTweak("theme", v)}
+              />
+            </TweakSection>
+          </TweaksPanel>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
