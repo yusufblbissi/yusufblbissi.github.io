@@ -612,20 +612,65 @@ const SOCIAL_LINKS = [
     href: 'https://www.instagram.com/yousef.balbissi?igsh=MXdhYWpjamFtanRkcw%3D%3D&utm_source=qr',
     handle: '@yousef.balbissi',
     blurb: 'Studio updates, recent works, and new releases.',
+    accent: '#C13584',
   },
   {
     label: 'Facebook',
     href: 'https://www.facebook.com/share/14iS6kBdkqp/?mibextid=wwXIfr',
     handle: 'Yousef Balbisi on Facebook',
     blurb: 'Announcements, community posts, and exhibition updates.',
+    accent: '#1877F2',
   },
   {
     label: 'LinkedIn',
     href: 'https://www.linkedin.com/in/yousef-balbisi?utm_source=share_via&utm_content=profile&utm_medium=member_ios',
     handle: 'Yousef Balbisi',
     blurb: 'Professional profile, collaborations, and career updates.',
+    accent: '#0A66C2',
   },
 ];
+
+function SocialIcon({ label, color }) {
+  const common = {
+    width: 18,
+    height: 18,
+    viewBox: '0 0 24 24',
+    fill: 'none',
+    stroke: color,
+    strokeWidth: 1.8,
+    strokeLinecap: 'round',
+    strokeLinejoin: 'round',
+    'aria-hidden': true,
+  };
+
+  if (label === 'Instagram') {
+    return (
+      <svg {...common}>
+        <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
+        <circle cx="12" cy="12" r="4" />
+        <circle cx="17.5" cy="6.5" r="0.9" fill={color} stroke="none" />
+      </svg>
+    );
+  }
+
+  if (label === 'Facebook') {
+    return (
+      <svg {...common}>
+        <path d="M14.5 8h2.5V4.8c-.4-.1-1.7-.3-3.2-.3-3.1 0-5.3 1.9-5.3 5.5V13H5.5v3.6h3v6.9h3.7v-6.9h3.1l.5-3.6h-3.6v-2.6c0-1 .3-1.8 2.3-1.8Z" fill={color} stroke="none" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg {...common}>
+      <rect x="3.5" y="3.5" width="17" height="17" rx="3.5" />
+      <path d="M8 10.2v6.3" />
+      <path d="M8 7.8h.01" />
+      <path d="M11.6 16.5v-3.6c0-1.6.9-2.4 2-2.4 1.2 0 1.8.8 1.8 2.4v3.6" />
+      <path d="M11.6 10.2v6.3" />
+    </svg>
+  );
+}
 
 /* ── Placeholder Component ── */
 function ArtPlaceholder({ text, theme, style }) {
@@ -808,38 +853,84 @@ function SocialSection({ theme, viewport }) {
                 <div style={{
                   background: t.cardBg,
                   border: `1px solid ${t.cardBorder}`,
-                  borderRadius: 18,
-                  padding: compact ? 20 : 24,
-                  minHeight: 190,
-                  boxShadow: `0 18px 40px ${t.text}10`,
+                  borderRadius: 24,
+                  padding: compact ? 20 : 26,
+                  minHeight: 220,
+                  boxShadow: `0 20px 50px ${t.text}10`,
+                  backgroundImage: `linear-gradient(180deg, ${link.accent}10 0%, ${t.cardBg} 42%)`,
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
                 }}>
-                  <div style={{
-                    fontFamily: t.fontBody,
-                    fontSize: 12,
-                    color: t.accent,
-                    textTransform: "uppercase",
-                    letterSpacing: 2.5,
-                    marginBottom: 12,
-                  }}>{link.label}</div>
-                  <div style={{ fontFamily: t.font, fontSize: compact ? 28 : 32, color: t.text, lineHeight: 1.1 }}>
-                    {link.handle}
+                  <div>
+                    <div style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      gap: 16,
+                    }}>
+                      <div style={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: 16,
+                        background: `${link.accent}14`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        border: `1px solid ${link.accent}22`,
+                      }}>
+                        <SocialIcon label={link.label} color={link.accent} />
+                      </div>
+                      <div style={{
+                        fontFamily: t.fontBody,
+                        fontSize: 11,
+                        color: link.accent,
+                        textTransform: "uppercase",
+                        letterSpacing: 2.5,
+                        paddingTop: 4,
+                      }}>{link.label}</div>
+                    </div>
+                    <div style={{ fontFamily: t.font, fontSize: compact ? 28 : 32, color: t.text, lineHeight: 1.1, marginTop: 22 }}>
+                      {link.handle}
+                    </div>
+                    <p style={{
+                      fontFamily: t.fontBody,
+                      fontSize: 14,
+                      color: t.textMuted,
+                      lineHeight: 1.75,
+                      margin: "14px 0 0",
+                    }}>{link.blurb}</p>
                   </div>
-                  <p style={{
-                    fontFamily: t.fontBody,
-                    fontSize: 14,
-                    color: t.textMuted,
-                    lineHeight: 1.75,
-                    margin: "14px 0 0",
-                  }}>{link.blurb}</p>
                   <div style={{
-                    fontFamily: t.fontBody,
-                    fontSize: 12,
-                    color: t.accent,
-                    textTransform: "uppercase",
-                    letterSpacing: 2,
-                    marginTop: 18,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginTop: 24,
+                    paddingTop: 18,
+                    borderTop: `1px solid ${t.cardBorder}`,
                   }}>
-                    Open profile
+                    <div style={{
+                      fontFamily: t.fontBody,
+                      fontSize: 12,
+                      color: t.textMuted,
+                      textTransform: "uppercase",
+                      letterSpacing: 2,
+                    }}>
+                      Open profile
+                    </div>
+                    <div style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: 999,
+                      background: `${link.accent}14`,
+                      color: link.accent,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 18,
+                    }}>
+                      →
+                    </div>
                   </div>
                 </div>
               </a>
@@ -1502,7 +1593,7 @@ function Footer({ theme, viewport }) {
         justifyContent: "center",
         gap: 18,
         flexWrap: "wrap",
-        marginTop: 14,
+        marginTop: 18,
         fontFamily: t.fontBody,
         fontSize: 12,
         color: t.textMuted,
@@ -1510,7 +1601,19 @@ function Footer({ theme, viewport }) {
         letterSpacing: 2,
       }}>
         {SOCIAL_LINKS.map((link) => (
-          <a key={link.label} href={link.href} target="_blank" rel="noreferrer">{link.label}</a>
+          <a key={link.label} href={link.href} target="_blank" rel="noreferrer" style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "10px 14px",
+            borderRadius: 999,
+            background: `${link.accent}12`,
+            border: `1px solid ${link.accent}20`,
+            color: t.text,
+          }}>
+            <SocialIcon label={link.label} color={link.accent} />
+            <span>{link.label}</span>
+          </a>
         ))}
       </div>
     </footer>
