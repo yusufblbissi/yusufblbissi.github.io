@@ -172,7 +172,7 @@ function GalleryPage({ theme, setSelectedArt }) {
     <section style={{ marginTop: 64, padding: "60px 40px 80px", background: t.bg, minHeight: "100vh" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
         <h2 style={{ fontFamily: t.font, fontSize: 42, fontWeight: 400, color: t.text, margin: "0 0 12px" }}>Gallery</h2>
-        <p style={{ fontFamily: t.fontBody, fontSize: 16, color: t.textMuted, margin: "0 0 40px" }}>Selected works in pen, ink, and acrylic</p>
+        <p style={{ fontFamily: t.fontBody, fontSize: 16, color: t.textMuted, margin: "0 0 40px" }}>Art is not a mirror held up to reality but a hammer with which to shape it</p>
 
         <div style={{ display: "flex", gap: 20, marginBottom: 40 }}>
           {cats.map(c => (
