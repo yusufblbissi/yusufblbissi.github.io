@@ -680,6 +680,355 @@ function Hero({ theme, setPage, onToggleTheme }) {
   );
 }
 
+function HomePage({ theme, setPage, onToggleTheme }) {
+  const t = THEMES[theme];
+  const featuredWorks = ARTWORKS.slice(0, 3);
+  const highlights = [
+    {
+      eyebrow: "Origins",
+      title: "A visual language built from movement",
+      body: "Each collection begins with fragments of place: Damascus windows, Beirut light, and the quiet persistence of memory carried across borders.",
+    },
+    {
+      eyebrow: "Medium",
+      title: "Ink for precision, acrylic for atmosphere",
+      body: "Portraits stay intimate and deliberate, while color fields and layered brushwork open space for emotion, distance, and longing.",
+    },
+    {
+      eyebrow: "Intent",
+      title: "Work made to be lived with",
+      body: "These pieces are meant to hold attention over time, revealing small tensions between tenderness, resilience, and belonging.",
+    },
+  ];
+  const processSteps = [
+    {
+      number: "01",
+      title: "Collecting memory",
+      body: "Photographs, overheard phrases, and small objects become the first material for a painting or drawing.",
+    },
+    {
+      number: "02",
+      title: "Building the composition",
+      body: "Sketches refine the rhythm of the piece until the balance between silence and detail feels exact.",
+    },
+    {
+      number: "03",
+      title: "Finishing with intention",
+      body: "Final layers focus on what should remain unresolved, so the work keeps breathing after it leaves the studio.",
+    },
+  ];
+
+  return (
+    <>
+      <Hero theme={theme} setPage={setPage} onToggleTheme={onToggleTheme} />
+
+      <section style={{
+        background: `linear-gradient(180deg, ${t.bg} 0%, ${t.bgAlt} 100%)`,
+        padding: "88px 40px",
+      }}>
+        <div style={{
+          maxWidth: 1200,
+          margin: "0 auto",
+          display: "grid",
+          gridTemplateColumns: "minmax(0, 1.1fr) minmax(0, 1fr)",
+          gap: 40,
+          alignItems: "start",
+        }}>
+          <FadeIn direction="up">
+            <div>
+              <div style={{
+                fontFamily: t.fontBody,
+                fontSize: 12,
+                color: t.accent,
+                textTransform: "uppercase",
+                letterSpacing: 3,
+                marginBottom: 18,
+              }}>
+                On the home page now
+              </div>
+              <h2 style={{
+                fontFamily: t.font,
+                fontSize: 46,
+                fontWeight: 400,
+                color: t.text,
+                lineHeight: 1.1,
+                margin: 0,
+                maxWidth: 560,
+              }}>
+                New sections that move as the story unfolds.
+              </h2>
+              <p style={{
+                fontFamily: t.fontBody,
+                fontSize: 17,
+                color: t.textMuted,
+                lineHeight: 1.8,
+                margin: "22px 0 0",
+                maxWidth: 520,
+              }}>
+                The landing page now carries more of the studio atmosphere: context about the work, a featured selection, and a process section that reveals itself through scroll-based fades.
+              </p>
+            </div>
+          </FadeIn>
+          <div style={{ display: "grid", gap: 16 }}>
+            {highlights.map((item, index) => (
+              <FadeIn key={item.title} delay={0.12 * (index + 1)} direction="up">
+                <div style={{
+                  background: t.cardBg,
+                  border: `1px solid ${t.cardBorder}`,
+                  borderRadius: 18,
+                  padding: 24,
+                  boxShadow: `0 18px 48px ${t.text}10`,
+                }}>
+                  <div style={{
+                    fontFamily: t.fontBody,
+                    fontSize: 11,
+                    color: t.accent,
+                    textTransform: "uppercase",
+                    letterSpacing: 2.5,
+                    marginBottom: 10,
+                  }}>
+                    {item.eyebrow}
+                  </div>
+                  <div style={{
+                    fontFamily: t.font,
+                    fontSize: 28,
+                    color: t.text,
+                    lineHeight: 1.15,
+                  }}>
+                    {item.title}
+                  </div>
+                  <p style={{
+                    fontFamily: t.fontBody,
+                    fontSize: 15,
+                    color: t.textMuted,
+                    lineHeight: 1.75,
+                    margin: "14px 0 0",
+                  }}>
+                    {item.body}
+                  </p>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section style={{
+        background: t.bg,
+        padding: "88px 40px",
+      }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <FadeIn direction="up">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "end", gap: 24, flexWrap: "wrap" }}>
+              <div>
+                <div style={{
+                  fontFamily: t.fontBody,
+                  fontSize: 12,
+                  color: t.accent,
+                  textTransform: "uppercase",
+                  letterSpacing: 3,
+                  marginBottom: 14,
+                }}>
+                  Featured works
+                </div>
+                <h2 style={{ fontFamily: t.font, fontSize: 44, fontWeight: 400, color: t.text, margin: 0 }}>
+                  A quick way into the collection.
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPage("gallery")}
+                style={{
+                  padding: "13px 24px",
+                  borderRadius: 999,
+                  border: `1px solid ${t.cardBorder}`,
+                  background: t.cardBg,
+                  color: t.text,
+                  fontFamily: t.fontBody,
+                  fontSize: 12,
+                  textTransform: "uppercase",
+                  letterSpacing: 2,
+                  cursor: "pointer",
+                }}
+              >
+                Explore gallery
+              </button>
+            </div>
+          </FadeIn>
+
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+            gap: 24,
+            marginTop: 36,
+          }}>
+            {featuredWorks.map((art, index) => (
+              <FadeIn key={art.id} delay={0.12 * index} direction="up">
+                <div style={{
+                  background: t.cardBg,
+                  border: `1px solid ${t.cardBorder}`,
+                  borderRadius: 20,
+                  overflow: "hidden",
+                  boxShadow: `0 22px 48px ${t.text}10`,
+                }}>
+                  <div style={{ aspectRatio: "4 / 5", overflow: "hidden" }}>
+                    <img src={art.src} alt={art.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  </div>
+                  <div style={{ padding: 22 }}>
+                    <div style={{ fontFamily: t.font, fontSize: 28, color: t.text, lineHeight: 1.1 }}>{art.title}</div>
+                    <div style={{ fontFamily: t.fontBody, fontSize: 13, color: t.textMuted, marginTop: 8 }}>
+                      {art.medium} · {art.year}
+                    </div>
+                    <p style={{
+                      fontFamily: t.fontBody,
+                      fontSize: 14,
+                      color: t.textMuted,
+                      lineHeight: 1.75,
+                      margin: "14px 0 0",
+                    }}>
+                      {art.story}
+                    </p>
+                  </div>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section style={{
+        background: `linear-gradient(180deg, ${t.bgAlt} 0%, ${t.bg} 100%)`,
+        padding: "88px 40px 112px",
+      }}>
+        <div style={{
+          maxWidth: 1200,
+          margin: "0 auto",
+          display: "grid",
+          gridTemplateColumns: "minmax(0, 0.9fr) minmax(0, 1.1fr)",
+          gap: 36,
+          alignItems: "start",
+        }}>
+          <FadeIn direction="left">
+            <div style={{ position: "sticky", top: 96 }}>
+              <div style={{
+                fontFamily: t.fontBody,
+                fontSize: 12,
+                color: t.accent,
+                textTransform: "uppercase",
+                letterSpacing: 3,
+                marginBottom: 14,
+              }}>
+                Process
+              </div>
+              <h2 style={{ fontFamily: t.font, fontSize: 44, fontWeight: 400, color: t.text, margin: 0, lineHeight: 1.1 }}>
+                How each piece reaches the wall.
+              </h2>
+              <p style={{
+                fontFamily: t.fontBody,
+                fontSize: 16,
+                color: t.textMuted,
+                lineHeight: 1.8,
+                margin: "20px 0 0",
+                maxWidth: 440,
+              }}>
+                The home page closes with a studio sequence that guides visitors from memory to composition to final finish, then pushes them toward the next action.
+              </p>
+            </div>
+          </FadeIn>
+          <div style={{ display: "grid", gap: 18 }}>
+            {processSteps.map((step, index) => (
+              <FadeIn key={step.number} delay={0.12 * index} direction="right">
+                <div style={{
+                  display: "grid",
+                  gridTemplateColumns: "auto 1fr",
+                  gap: 18,
+                  background: t.cardBg,
+                  border: `1px solid ${t.cardBorder}`,
+                  borderRadius: 18,
+                  padding: 24,
+                }}>
+                  <div style={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: 999,
+                    background: `${t.accent}20`,
+                    color: t.accent,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontFamily: t.fontBody,
+                    fontSize: 13,
+                    letterSpacing: 1.5,
+                  }}>
+                    {step.number}
+                  </div>
+                  <div>
+                    <div style={{ fontFamily: t.font, fontSize: 28, color: t.text, lineHeight: 1.1 }}>{step.title}</div>
+                    <p style={{
+                      fontFamily: t.fontBody,
+                      fontSize: 15,
+                      color: t.textMuted,
+                      lineHeight: 1.75,
+                      margin: "10px 0 0",
+                    }}>
+                      {step.body}
+                    </p>
+                  </div>
+                </div>
+              </FadeIn>
+            ))}
+            <FadeIn delay={0.42} direction="up">
+              <div style={{
+                display: "flex",
+                gap: 14,
+                flexWrap: "wrap",
+                marginTop: 8,
+              }}>
+                <button
+                  type="button"
+                  onClick={() => setPage("contact")}
+                  style={{
+                    padding: "14px 24px",
+                    borderRadius: 999,
+                    border: "none",
+                    background: t.accent,
+                    color: "#fff",
+                    fontFamily: t.fontBody,
+                    fontSize: 12,
+                    textTransform: "uppercase",
+                    letterSpacing: 2,
+                    cursor: "pointer",
+                  }}
+                >
+                  Start a conversation
+                </button>
+                <button
+                  type="button"
+                  onClick={onToggleTheme}
+                  style={{
+                    padding: "14px 24px",
+                    borderRadius: 999,
+                    border: `1px solid ${t.cardBorder}`,
+                    background: t.cardBg,
+                    color: t.text,
+                    fontFamily: t.fontBody,
+                    fontSize: 12,
+                    textTransform: "uppercase",
+                    letterSpacing: 2,
+                    cursor: "pointer",
+                  }}
+                >
+                  Toggle mood
+                </button>
+              </div>
+            </FadeIn>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}
+
 /* ── Gallery Page ── */
 function GalleryPage({ theme, setSelectedArt }) {
   const t = THEMES[theme];
@@ -971,7 +1320,7 @@ function Footer({ theme }) {
 /* ── Export ── */
 Object.assign(window, {
   THEMES, ARTWORKS,
-  ArtPlaceholder, Nav, Hero, GalleryPage, ArtCard, Lightbox,
+  ArtPlaceholder, Nav, Hero, HomePage, GalleryPage, ArtCard, Lightbox,
   AboutPage, ShopPage, ContactPage, Footer,
 });
 
@@ -997,12 +1346,12 @@ Object.assign(window, {
 
       const renderPage = () => {
         switch (page) {
-          case "home": return <Hero theme={theme} setPage={setPage} onToggleTheme={() => setTweak("theme", theme === "dark" ? "gallery" : "dark")} />;
+          case "home": return <HomePage theme={theme} setPage={setPage} onToggleTheme={() => setTweak("theme", theme === "dark" ? "gallery" : "dark")} />;
           case "gallery": return <GalleryPage theme={theme} setSelectedArt={setSelectedArt} />;
           case "about": return <AboutPage theme={theme} />;
           case "shop": return <ShopPage theme={theme} setSelectedArt={setSelectedArt} />;
           case "contact": return <ContactPage theme={theme} />;
-          default: return <Hero theme={theme} setPage={setPage} />;
+          default: return <HomePage theme={theme} setPage={setPage} onToggleTheme={() => setTweak("theme", theme === "dark" ? "gallery" : "dark")} />;
         }
       };
 
