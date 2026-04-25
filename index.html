@@ -1346,7 +1346,6 @@ function HomePage({ theme, setPage, onToggleTheme, viewport }) {
         </div>
       </section>
 
-      <SocialSection theme={theme} viewport={viewport} />
     </>
   );
 }
@@ -1630,46 +1629,96 @@ function ContactPage({ theme, viewport }) {
 }
 
 /* ── Footer ── */
-function Footer({ theme, viewport }) {
+function Footer({ theme, viewport, currentPage, setPage }) {
   const t = THEMES[theme];
   const compact = viewport?.isMobile;
+  const routeLinks = ["home", "gallery", "about", "shop", "contact"];
   return (
     <footer style={{
-      padding: compact ? "28px 18px" : "40px", background: t.bgAlt,
+      padding: compact ? "32px 18px" : "44px 40px", background: t.bgAlt,
       borderTop: `1px solid ${t.cardBorder}`,
-      textAlign: "center",
+      marginTop: 0,
     }}>
-      <div style={{ fontFamily: t.font, fontSize: 18, color: t.text }}>Yousef Balbisi</div>
-      <div style={{ fontFamily: t.fontBody, fontSize: 13, color: t.textMuted, marginTop: 8 }}>
-        Palestinian artist · Beirut, Lebanon
-      </div>
-      <div style={{
-        display: "flex",
-        justifyContent: "center",
-        gap: 18,
-        flexWrap: "wrap",
-        marginTop: 18,
-        fontFamily: t.fontBody,
-        fontSize: 12,
-        color: t.textMuted,
-        textTransform: "uppercase",
-        letterSpacing: 2,
-      }}>
-        {SOCIAL_LINKS.map((link) => (
-          <a key={link.label} href={link.href} target="_blank" rel="noreferrer" style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 8,
-            padding: "10px 14px",
-            borderRadius: 999,
-            background: `${link.accent}12`,
-            border: `1px solid ${link.accent}20`,
-            color: t.text,
-          }}>
-            <SocialIcon label={link.label} color={link.accent} />
-            <span>{link.label}</span>
-          </a>
-        ))}
+      <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: compact ? "flex-start" : "center", gap: 18, flexDirection: compact ? "column" : "row" }}>
+          <div>
+            <div style={{ fontFamily: t.font, fontSize: 22, color: t.text }}>Yousef Balbisi</div>
+            <div style={{ fontFamily: t.fontBody, fontSize: 13, color: t.textMuted, marginTop: 8 }}>
+              Palestinian artist · Beirut, Lebanon
+            </div>
+          </div>
+          <div style={{ fontFamily: t.fontBody, fontSize: 11, color: t.textMuted, textTransform: "uppercase", letterSpacing: 2.5 }}>
+            Portfolio navigation
+          </div>
+        </div>
+
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: compact ? "1fr" : "minmax(0, 1fr) minmax(0, 1fr)",
+          gap: compact ? 24 : 40,
+          marginTop: 28,
+          paddingTop: 24,
+          borderTop: `1px solid ${t.cardBorder}`,
+        }}>
+          <div>
+            <div style={{ fontFamily: t.fontBody, fontSize: 12, color: t.textMuted, textTransform: "uppercase", letterSpacing: 2.5, marginBottom: 14 }}>
+              Routes
+            </div>
+            <div style={{ display: "grid", gap: 10 }}>
+              {routeLinks.map((link) => (
+                <button
+                  key={link}
+                  type="button"
+                  onClick={() => setPage(link)}
+                  style={{
+                    width: "fit-content",
+                    border: "none",
+                    background: "none",
+                    padding: 0,
+                    cursor: "pointer",
+                    fontFamily: t.font,
+                    fontSize: 24,
+                    textTransform: "capitalize",
+                    color: currentPage === link ? t.accent : t.text,
+                    textAlign: "left",
+                    lineHeight: 1.1,
+                  }}
+                >
+                  {link}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <div style={{ fontFamily: t.fontBody, fontSize: 12, color: t.textMuted, textTransform: "uppercase", letterSpacing: 2.5, marginBottom: 14 }}>
+              Social icons
+            </div>
+            <div style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center" }}>
+              {SOCIAL_LINKS.map((link) => (
+                <a key={link.label} href={link.href} target="_blank" rel="noreferrer" aria-label={link.label} style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: 999,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: `${link.accent}12`,
+                  border: `1px solid ${link.accent}24`,
+                }}>
+                  <SocialIcon label={link.label} color={link.accent} />
+                </a>
+              ))}
+            </div>
+            <div style={{ fontFamily: t.fontBody, fontSize: 13, color: t.textMuted, lineHeight: 1.7, marginTop: 18, maxWidth: 320 }}>
+              Follow recent works, exhibition notes, and studio updates across the artist's profiles.
+            </div>
+          </div>
+        </div>
+
+        <div style={{ fontFamily: t.fontBody, fontSize: 12, color: t.textMuted, marginTop: 24 }}>
+          © 2026 Yousef Balbisi
+        </div>
       </div>
     </footer>
   );
@@ -1720,7 +1769,7 @@ Object.assign(window, {
           <PageTransition pageKey={page}>
             {renderPage()}
           </PageTransition>
-          {page !== "home" && <Footer theme={theme} viewport={viewport} />}
+          <Footer theme={theme} viewport={viewport} currentPage={page} setPage={setPage} />
           <Lightbox art={selectedArt} theme={theme} onClose={() => setSelectedArt(null)} />
 
           <TweaksPanel title="Tweaks">
