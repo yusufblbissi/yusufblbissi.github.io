@@ -378,13 +378,14 @@ function TweakRadio({ label, value, options, onChange }) {
     window.addEventListener('pointermove', move);
     window.addEventListener('pointerup', up);
   };
-
   return (
     <TweakRow label={label}>
       <div ref={trackRef} role="radiogroup" onPointerDown={onPointerDown}
            className={dragging ? 'twk-seg dragging' : 'twk-seg'}>
         <div className="twk-seg-thumb"
              style={{ left: `calc(2px + ${idx} * (100% - 4px) / ${n})`,
+              paddingTop: compact ? 10 : 0,
+              paddingRight: compact ? 6 : 0,
                       width: `calc((100% - 4px) / ${n})` }} />
         {opts.map((o) => (
           <button key={o.value} type="button" role="radio" aria-checked={o.value === value}>
@@ -695,6 +696,17 @@ function Nav({ theme, currentPage, setPage, viewport }) {
   const t = THEMES[theme];
   const links = ["home", "gallery", "about", "shop", "contact"];
   const compact = viewport?.isMobile;
+  const [menuOpen, setMenuOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!compact) setMenuOpen(false);
+  }, [compact, currentPage]);
+
+  const selectPage = (page) => {
+    setPage(page);
+    setMenuOpen(false);
+  };
+
   return (
     <nav style={{
       position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
@@ -708,23 +720,65 @@ function Nav({ theme, currentPage, setPage, viewport }) {
       flexDirection: compact ? "column" : "row",
       gap: compact ? 10 : 0,
     }}>
-      <div
-        onClick={() => setPage("home")}
-        style={{ cursor: "pointer", fontFamily: t.font, fontSize: compact ? 20 : 22, fontWeight: 600, color: t.text, letterSpacing: 1 }}
-      >
-        Yousef Balbisi
+      <div style={{
+        width: "100%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 16,
+      }}>
+        <div
+          onClick={() => selectPage("home")}
+          style={{ cursor: "pointer", fontFamily: t.font, fontSize: compact ? 20 : 22, fontWeight: 600, color: t.text, letterSpacing: 1 }}
+        >
+          Yousef Balbisi
+        </div>
+        {compact && (
+          <button
+            type="button"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((open) => !open)}
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 14,
+              border: `1px solid ${t.cardBorder}`,
+              background: t.cardBg,
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              boxShadow: `0 10px 24px ${t.text}10`,
+            }}
+          >
+            <span style={{ display: "grid", gap: 4 }}>
+              <span style={{ width: 16, height: 1.5, background: t.text, display: "block", transform: menuOpen ? "translateY(5.5px) rotate(45deg)" : "none", transition: "transform 0.25s ease" }} />
+              <span style={{ width: 16, height: 1.5, background: t.text, display: "block", opacity: menuOpen ? 0 : 1, transition: "opacity 0.2s ease" }} />
+              <span style={{ width: 16, height: 1.5, background: t.text, display: "block", transform: menuOpen ? "translateY(-5.5px) rotate(-45deg)" : "none", transition: "transform 0.25s ease" }} />
+            </span>
+          </button>
+        )}
       </div>
-      <div style={{ display: "flex", gap: compact ? 18 : 32, flexWrap: "wrap", width: compact ? "100%" : "auto" }}>
+      <div style={{
+        display: compact ? (menuOpen ? "grid" : "none") : "flex",
+        gap: compact ? 10 : 32,
+        flexWrap: "wrap",
+        width: compact ? "100%" : "auto",
+        paddingTop: compact ? 4 : 0,
+      }}>
         {links.map(l => (
           <div
             key={l}
-            onClick={() => setPage(l)}
+            onClick={() => selectPage(l)}
             style={{
               cursor: "pointer", fontFamily: t.fontBody, fontSize: compact ? 12 : 14,
               textTransform: "uppercase", letterSpacing: 2,
               color: currentPage === l ? t.accent : t.textMuted,
               borderBottom: currentPage === l ? `2px solid ${t.accent}` : "2px solid transparent",
               paddingBottom: 4,
+              paddingTop: compact ? 10 : 0,
+              paddingRight: compact ? 6 : 0,
               transition: "all 0.3s",
             }}
             onMouseEnter={e => { e.target.style.color = t.accent; }}
